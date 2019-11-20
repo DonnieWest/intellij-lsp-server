@@ -1,37 +1,31 @@
-import org.jetbrains.intellij.tasks.PublishTask
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import kotlin.concurrent.thread
+import org.gradle.api.JavaVersion.VERSION_1_8
 import org.gradle.api.internal.HasConvention
 import org.gradle.api.tasks.SourceSet
-import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
-import org.gradle.api.JavaVersion.VERSION_1_8
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
-import org.gradle.jvm.tasks.Jar
-import java.net.HttpURLConnection
-import java.net.URL
-import java.nio.file.Path
-import kotlin.concurrent.thread
+import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 val kotlin_version: String by extra
 
 buildscript {
     var kotlin_version: String by extra
-    kotlin_version = "1.2.31"
+    kotlin_version = "1.3.60"
     repositories {
         mavenCentral()
         jcenter()
     }
     dependencies {
-        classpath(kotlinModule("gradle-plugin", kotlin_version))
+        classpath(kotlin("gradle-plugin", kotlin_version))
     }
 }
-
 
 val CI = System.getenv("CI") != null
 
 plugins {
     idea
-    kotlin("jvm") version "1.2.31"
-    id("org.jetbrains.intellij") version "0.3.1"
+    kotlin("jvm") version "1.3.60"
+    id("org.jetbrains.intellij") version "0.4.13"
 }
 apply {
     plugin("kotlin")
@@ -68,14 +62,14 @@ allprojects {
         updateSinceUntilBuild = false
         instrumentCode = false
         ideaDependencyCachePath = file("deps").absolutePath
-        setPlugins("properties", "maven", "junit", "Kotlin", "android", "gradle", "Groovy", "smali")
+        setPlugins("properties", "maven", "junit", "Kotlin", "android", "gradle", "Groovy", "smali", "java")
     }
 
     tasks.withType<KotlinCompile> {
         kotlinOptions {
             jvmTarget = "1.8"
-            languageVersion = "1.2"
-            apiVersion = "1.2"
+            languageVersion = "1.3"
+            apiVersion = "1.3"
         }
     }
 
@@ -84,7 +78,7 @@ allprojects {
         targetCompatibility = VERSION_1_8
     }
 
-    java.sourceSets {
+    sourceSets {
         getByName("main").java.srcDirs("src/gen")
     }
 }
@@ -98,9 +92,9 @@ project(":") {
     }
 
     dependencies {
-        compile("org.jetbrains.kotlin:kotlin-reflect:1.2.31")
-        compile("org.eclipse.lsp4j:org.eclipse.lsp4j:0.4.0")
-        testCompile("org.jetbrains.kotlin:kotlin-test:1.2.31")
+        compile("org.jetbrains.kotlin:kotlin-reflect:1.3.60")
+        compile("org.eclipse.lsp4j:org.eclipse.lsp4j:0.8.1")
+        testCompile("org.jetbrains.kotlin:kotlin-test:1.3.60")
     }
 
     tasks.withType<Test> {
@@ -125,7 +119,6 @@ fun prop(name: String): String =
     extra.properties[name] as? String
         ?: error("Property `$name` is not defined in gradle.properties")
 
-
 inline operator fun <T : Task> T.invoke(a: T.() -> Unit): T = apply(a)
 
 val SourceSet.kotlin: SourceDirectorySet
@@ -135,10 +128,8 @@ val SourceSet.kotlin: SourceDirectorySet
             .getPlugin(KotlinSourceSet::class.java)
             .kotlin
 
-
 fun SourceSet.kotlin(action: SourceDirectorySet.() -> Unit) =
     kotlin.action()
-
 
 fun String.execute(wd: String? = null, ignoreExitCode: Boolean = false): String =
     split(" ").execute(wd, ignoreExitCode)
@@ -162,7 +153,7 @@ fun List<String>.execute(wd: String? = null, ignoreExitCode: Boolean = false): S
     return result
 }
 dependencies {
-    compile(kotlinModule("stdlib-jdk8", kotlin_version))
+    compile(kotlin("stdlib-jdk8", kotlin_version))
 }
 repositories {
     mavenCentral()
