@@ -1,14 +1,16 @@
 package com.ruin.lsp.model
 
-import com.intellij.openapi.application.ApplicationStarterEx
+import com.intellij.ide.CliResult
+import com.intellij.openapi.application.ApplicationStarter
+import java.util.concurrent.Future
 
-class LspApplicationStarter : ApplicationStarterEx() {
+class LspApplicationStarter : ApplicationStarter {
     override fun getCommandName(): String = "lang-server"
     override fun isHeadless(): Boolean = true
     override fun canProcessExternalCommandLine(): Boolean = true
 
-    override fun processExternalCommandLine(args: Array<out String>, currentDirectory: String?) {
-        super.processExternalCommandLine(args, currentDirectory)
+    override fun processExternalCommandLineAsync(args: Array<out String>, currentDirectory: String?): Future<out CliResult> {
+        return super.processExternalCommandLineAsync(args, currentDirectory)
     }
 
     override fun premain(args: Array<out String>) {

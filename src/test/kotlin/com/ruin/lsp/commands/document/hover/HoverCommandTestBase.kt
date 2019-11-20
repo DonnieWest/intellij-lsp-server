@@ -2,8 +2,6 @@ package com.ruin.lsp.commands.document.hover
 
 import com.intellij.openapi.project.DumbService
 import com.intellij.testFramework.UsefulTestCase
-import com.ruin.lsp.DUMMY_FILE_PATH
-import com.ruin.lsp.JAVA_PROJECT
 import com.ruin.lsp.model.invokeCommandAndWait
 import org.eclipse.lsp4j.MarkedString
 import org.eclipse.lsp4j.Position

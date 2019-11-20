@@ -3,9 +3,9 @@ package com.ruin.lsp.model
 import com.google.gson.JsonObject
 import com.ruin.lsp.commands.ProjectCommand
 import com.ruin.lsp.commands.project.symbol.WorkspaceSymbolCommand
+import java.util.concurrent.CompletableFuture
 import org.eclipse.lsp4j.*
 import org.eclipse.lsp4j.services.WorkspaceService
-import java.util.concurrent.CompletableFuture
 
 class MyWorkspaceService(val server: MyLanguageServer) : WorkspaceService {
     override fun didChangeWatchedFiles(params: DidChangeWatchedFilesParams) {}

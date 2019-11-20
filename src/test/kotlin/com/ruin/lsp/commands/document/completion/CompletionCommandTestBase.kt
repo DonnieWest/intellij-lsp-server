@@ -1,7 +1,5 @@
 package com.ruin.lsp.commands.document.completion
 
-import com.ruin.lsp.DUMMY_FILE_PATH
-import com.ruin.lsp.JAVA_PROJECT
 import com.ruin.lsp.model.invokeCommandAndWait
 import org.eclipse.lsp4j.InsertTextFormat
 import org.eclipse.lsp4j.Position

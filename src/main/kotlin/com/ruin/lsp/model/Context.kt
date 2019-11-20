@@ -1,4 +1,4 @@
-package com.ruin.lsp.model;
+package com.ruin.lsp.model
 
 import com.intellij.openapi.project.Project
 import org.eclipse.lsp4j.ClientCapabilities

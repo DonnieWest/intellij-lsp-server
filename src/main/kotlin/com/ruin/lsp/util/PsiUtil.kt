@@ -47,9 +47,7 @@ fun PsiElement.location() =
     location(getURIForFile(this.containingFile), getDocument(this.containingFile)!!)
 
 fun PsiElement.location(uri: DocumentUri, doc: Document) =
-    ((this as? PsiNameIdentifierOwner)?.nameIdentifier ?: this).textRange.let { textRange ->
-        Location(uri, textRange.toRange(doc))
-    }
+    Location(uri, ((this as? PsiNameIdentifierOwner)?.nameIdentifier ?: this).textRange.toRange(doc))
 
 fun PsiElement.symbolKind(): SymbolKind? =
     when (this) {
@@ -128,8 +126,8 @@ fun PsiElement.ktSymbolKind(): SymbolKind? =
             containingClass() != null -> SymbolKind.Method
             else -> SymbolKind.Function
         }
-        is KtLightMethod -> when {
-            this.containingClass !is KtLightClassForFacade -> SymbolKind.Method
+        is KtLightMethod -> when (this.containingClass) {
+            !is KtLightClassForFacade -> SymbolKind.Method
             else -> SymbolKind.Function
         }
         is KtProperty -> when {
@@ -152,7 +150,6 @@ fun PsiElement.ktSymbolKind(): SymbolKind? =
         is KtStringTemplateExpression -> SymbolKind.String
         else -> null
     }
-
 
 fun PsiElement.ktSymbolName(): String? =
     when (this) {
@@ -196,7 +193,7 @@ private fun methodLabel(method: KtFunction): String =
     } + ")"
 
 private fun methodParameterLabel(method: PsiMethod, parameter: PsiParameter): String =
-    StringBuilder().apply { generateType(this, parameter.type, method, false, true) }.toString()
+    StringBuilder().apply { generateType(this, parameter.type, method, useShortNames = false, generateLink = true) }.toString()
 
 private fun isConstant(elt: KtProperty) = elt.modifierList?.getModifier(KtTokens.CONST_KEYWORD) != null
 

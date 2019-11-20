@@ -2,7 +2,7 @@ package com.ruin.lsp.util
 
 import com.intellij.openapi.diagnostic.Logger
 import org.eclipse.lsp4j.services.LanguageClient
-import java.util.ArrayList
+import java.util.*
 import java.util.concurrent.TimeUnit
 import kotlin.collections.HashMap
 
@@ -32,7 +32,6 @@ open class Profiler(private var context: Any?) {
         val delta = now - last
         last = now
         LOG.debug("+" + format(delta, label))
-
 
         intervals.add(Pair(label, delta))
     }
@@ -111,7 +110,7 @@ fun withProfiler(context: Any): Profiler {
     if (existing != null) {
         return existing
     } else if (ENABLED && !sActiveProfilers.isEmpty()) {
-        throw IllegalArgumentException("No profiler for context " + context)
+        throw IllegalArgumentException("No profiler for context $context")
     }
 
     // either we're disabled or there are no active profilers at all.

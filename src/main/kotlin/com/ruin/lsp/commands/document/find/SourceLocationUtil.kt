@@ -2,7 +2,6 @@ package com.ruin.lsp.commands.document.find
 
 import com.intellij.openapi.editor.Document
 import com.intellij.openapi.editor.ScrollType
-import com.intellij.openapi.extensions.Extensions
 import com.intellij.openapi.fileEditor.FileEditor
 import com.intellij.openapi.fileEditor.FileEditorProvider
 import com.intellij.openapi.fileEditor.ex.FileEditorManagerEx
@@ -20,8 +19,8 @@ import java.lang.reflect.Constructor
 
 private var sConstructor: Constructor<EditorWithProviderComposite>? = null
 
-internal fun newEditorCompositeInstance(file: VirtualFile, editors: Array<FileEditor?>, providers: Array<FileEditorProvider>, fileEditorManager: FileEditorManagerEx)
-    : EditorWithProviderComposite? {
+internal fun newEditorCompositeInstance(file: VirtualFile, editors: Array<FileEditor?>, providers: Array<FileEditorProvider>, fileEditorManager: FileEditorManagerEx):
+    EditorWithProviderComposite? {
 
     try {
         val cached = sConstructor
@@ -97,7 +96,7 @@ fun PsiElement.sourceLocationIfPossible(): Location {
 
     val editor = newEditorComposite(this.containingFile.virtualFile, this.project)
         ?: return location
-    val swappers = Extensions.getExtensions(EditorFileSwapper.EP_NAME)
+    val swappers = EditorFileSwapper.EP_NAME.extensionList
     var newFilePair: SwappedSourcePosition? = null
     val psiAwareEditor = EditorFileSwapper.findSinglePsiAwareEditor(editor.editors) ?: return location
     psiAwareEditor.editor.caretModel.moveToOffset(location.range.start.toOffset(doc))

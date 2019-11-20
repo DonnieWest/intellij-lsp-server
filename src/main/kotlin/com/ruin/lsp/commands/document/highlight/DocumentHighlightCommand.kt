@@ -49,7 +49,6 @@ class DocumentHighlightCommand(val position: Position) : DocumentCommand<Mutable
     }
 }
 
-
 fun offsetToPosition(editor: Editor, offset: Int): Position {
     val logicalPos = editor.offsetToLogicalPosition(offset)
     return Position(logicalPos.line, logicalPos.column)
@@ -61,7 +60,6 @@ fun textRangeToRange(editor: Editor, range: TextRange) =
         offsetToPosition(editor, range.endOffset)
     )
 
-
 private fun findHighlights(project: Project, editor: Editor, file: PsiFile): List<DocumentHighlight>? {
     val handler: HighlightUsagesHandlerBase<PsiElement>? = HighlightUsagesHandler.createCustomHandler(editor, file)
 
@@ -72,8 +70,10 @@ private fun findHighlights(project: Project, editor: Editor, file: PsiFile): Lis
     }
 }
 
-private fun getHighlightsFromHandler(handler: HighlightUsagesHandlerBase<PsiElement>,
-                                     editor: Editor): List<DocumentHighlight> {
+private fun getHighlightsFromHandler(
+    handler: HighlightUsagesHandlerBase<PsiElement>,
+    editor: Editor
+): List<DocumentHighlight> {
     val featureId = handler.featureId
 
     if (featureId != null) {
@@ -121,10 +121,12 @@ private fun findRefsToElement(target: PsiElement, project: Project, file: PsiFil
         ?: ReferencesSearch.search(target, searchScope, false).findAll()
 }
 
-private fun extractDocumentHighlightFromRaw(project: Project,
-                                            file: PsiFile,
-                                            editor: Editor,
-                                            usage: UsageTarget): List<DocumentHighlight>? {
+private fun extractDocumentHighlightFromRaw(
+    project: Project,
+    file: PsiFile,
+    editor: Editor,
+    usage: UsageTarget
+): List<DocumentHighlight>? {
     return if (usage is PsiElement2UsageTargetAdapter) {
         val target = usage.element
         val refs = findRefsToElement(target, project, file)
@@ -135,10 +137,12 @@ private fun extractDocumentHighlightFromRaw(project: Project,
     }
 }
 
-private fun refsToHighlights(element: PsiElement,
-                             file: PsiFile,
-                             editor: Editor,
-                             refs: Collection<PsiReference>): List<DocumentHighlight> {
+private fun refsToHighlights(
+    element: PsiElement,
+    file: PsiFile,
+    editor: Editor,
+    refs: Collection<PsiReference>
+): List<DocumentHighlight> {
     val detector = ReadWriteAccessDetector.findDetector(element)
 
     val highlights: MutableList<DocumentHighlight> = mutableListOf()
@@ -173,9 +177,12 @@ private fun refsToHighlights(element: PsiElement,
     return highlights
 }
 
-private fun addHighlights(highlights: MutableList<DocumentHighlight>,
-                          refs: Collection<PsiReference>,
-                          editor: Editor, kind: DocumentHighlightKind) {
+private fun addHighlights(
+    highlights: MutableList<DocumentHighlight>,
+    refs: Collection<PsiReference>,
+    editor: Editor,
+    kind: DocumentHighlightKind
+) {
     val textRanges = java.util.ArrayList<TextRange>(refs.size)
     for (ref in refs) {
         HighlightUsagesHandler.collectRangesToHighlight(ref, textRanges)

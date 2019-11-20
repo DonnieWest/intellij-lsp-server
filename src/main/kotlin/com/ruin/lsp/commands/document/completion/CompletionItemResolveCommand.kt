@@ -13,11 +13,11 @@ import com.ruin.lsp.util.differenceFromAction
 import org.eclipse.lsp4j.CompletionItem
 import org.eclipse.lsp4j.TextEdit
 
-class CompletionItemResolveCommand(val item: CompletionItem)  : DocumentCommand<CompletionItem> {
+class CompletionItemResolveCommand(val item: CompletionItem) : DocumentCommand<CompletionItem> {
     override fun execute(ctx: ExecutionContext): CompletionItem {
         val completionCache = PreviousCompletionCacheService.getInstance()
         val lookupElement =
-            if(item.data is CompletionResolveIndex) {
+            if (item.data is CompletionResolveIndex) {
                 completionCache.resolveItem(item.data as CompletionResolveIndex)
             } else {
                 completionCache.resolveItem(item.data as JsonObject)
@@ -35,8 +35,8 @@ class CompletionItemResolveCommand(val item: CompletionItem)  : DocumentCommand<
 private fun autoImportIfNeededEdits(elt: PsiElement, file: PsiFile): List<TextEdit>? {
     return differenceFromAction(file) { _, copy ->
         if (elt is PsiClass && copy is PsiJavaFile) {
-            val manager = PsiDocumentManager.getInstance(copy.project)
-            //manager.commitDocument(copy.viewProvider.document!!)
+            // val manager = PsiDocumentManager.getInstance(copy.project)
+            // manager.commitDocument(copy.viewProvider.document!!)
             copy.importClass(elt)
             ApplicationManager.getApplication().runWriteAction {
                 val codeStyleManager = CodeStyleManager.getInstance(copy.project)

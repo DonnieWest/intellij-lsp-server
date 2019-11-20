@@ -9,5 +9,4 @@ class Problematic {
         val obj: NotImported
         val other: AlsoNotImported
     }
-
 }

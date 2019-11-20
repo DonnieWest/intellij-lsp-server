@@ -1,6 +1,5 @@
 package com.ruin.lsp.commands.project.run
 
-import com.intellij.execution.configurations.RunConfiguration
 import com.intellij.execution.impl.ExecutionManagerImpl
 import com.intellij.openapi.compiler.CompileScope
 import com.intellij.openapi.compiler.CompileStatusNotification
@@ -25,10 +24,12 @@ import java.util.stream.Collectors
  */
 class MyProjectTaskRunner(private val trueCallback: CompileStatusNotification) : ProjectTaskRunner() {
 
-    override fun run(project: Project,
-                     context: ProjectTaskContext,
-                     callback: ProjectTaskNotification?,
-                     tasks: Collection<ProjectTask>) {
+    override fun run(
+        project: Project,
+        context: ProjectTaskContext,
+        callback: ProjectTaskNotification?,
+        tasks: Collection<ProjectTask>
+    ) {
         val compileNotification = if (callback == null)
             null
         else
@@ -47,28 +48,32 @@ class MyProjectTaskRunner(private val trueCallback: CompileStatusNotification) :
         return true
     }
 
-    private class ModulesBuildSettings(internal val isIncrementalBuild: Boolean,
-                                       internal val includeDependentModules: Boolean,
-                                       internal val includeRuntimeDependencies: Boolean,
-                                       internal val modules: Collection<Module>)
+    private class ModulesBuildSettings(
+        internal val isIncrementalBuild: Boolean,
+        internal val includeDependentModules: Boolean,
+        internal val includeRuntimeDependencies: Boolean,
+        internal val modules: Collection<Module>
+    )
 
     companion object {
         private val LOG = Logger.getInstance(MyProjectTaskRunner::class.java)
         val EXECUTION_SESSION_ID_KEY = ExecutionManagerImpl.EXECUTION_SESSION_ID_KEY
 
         fun groupBy(tasks: Collection<ProjectTask>): Map<Class<out ProjectTask>, List<ProjectTask>> {
-            return tasks.stream().collect(Collectors.groupingBy({ o ->
+            return tasks.stream().collect(Collectors.groupingBy { o ->
                 if (o is ModuleFilesBuildTask) return@groupingBy ModuleFilesBuildTask::class.java
                 if (o is ModuleBuildTask) return@groupingBy ModuleBuildTask::class.java
                 if (o is ArtifactBuildTask) return@groupingBy ArtifactBuildTask::class.java
                 o.javaClass
-            }))
+            })
         }
 
-        private fun runModulesBuildTasks(project: Project,
-                                         context: ProjectTaskContext,
-                                         compileNotification: CompileStatusNotification?,
-                                         tasksMap: Map<Class<out ProjectTask>, List<ProjectTask>>) {
+        private fun runModulesBuildTasks(
+            project: Project,
+            context: ProjectTaskContext,
+            compileNotification: CompileStatusNotification?,
+            tasksMap: Map<Class<out ProjectTask>, List<ProjectTask>>
+        ) {
             val buildTasks = tasksMap[ModuleBuildTask::class.java]
             if (ContainerUtil.isEmpty(buildTasks)) return
             val modulesBuildSettings = assembleModulesBuildSettings(buildTasks!!)
@@ -127,11 +132,13 @@ class MyProjectTaskRunner(private val trueCallback: CompileStatusNotification) :
             LOG.warn("Module" + (if (moduleBuildTasks.size > 1) "s" else "") + " : '" + moduleNames + "' " + warnMsg)
         }
 
-        private fun createScope(compilerManager: CompilerManager,
-                                context: ProjectTaskContext,
-                                modules: Collection<Module>,
-                                includeDependentModules: Boolean,
-                                includeRuntimeDependencies: Boolean): CompileScope {
+        private fun createScope(
+            compilerManager: CompilerManager,
+            context: ProjectTaskContext,
+            modules: Collection<Module>,
+            includeDependentModules: Boolean,
+            includeRuntimeDependencies: Boolean
+        ): CompileScope {
             val scope = compilerManager.createModulesCompileScope(
                 modules.toTypedArray(), includeDependentModules, includeRuntimeDependencies)
             val configuration = context.runConfiguration
@@ -143,9 +150,11 @@ class MyProjectTaskRunner(private val trueCallback: CompileStatusNotification) :
             return scope
         }
 
-        private fun runFilesBuildTasks(project: Project,
-                                       compileNotification: CompileStatusNotification?,
-                                       tasksMap: Map<Class<out ProjectTask>, List<ProjectTask>>) {
+        private fun runFilesBuildTasks(
+            project: Project,
+            compileNotification: CompileStatusNotification?,
+            tasksMap: Map<Class<out ProjectTask>, List<ProjectTask>>
+        ) {
             val filesTargets = tasksMap[ModuleFilesBuildTask::class.java]
             if (!ContainerUtil.isEmpty(filesTargets)) {
                 val files = filesTargets!!
@@ -154,10 +163,12 @@ class MyProjectTaskRunner(private val trueCallback: CompileStatusNotification) :
             }
         }
 
-        private fun runArtifactsBuildTasks(project: Project,
-                                           context: ProjectTaskContext,
-                                           compileNotification: CompileStatusNotification?,
-                                           tasksMap: Map<Class<out ProjectTask>, List<ProjectTask>>) {
+        private fun runArtifactsBuildTasks(
+            project: Project,
+            context: ProjectTaskContext,
+            compileNotification: CompileStatusNotification?,
+            tasksMap: Map<Class<out ProjectTask>, List<ProjectTask>>
+        ) {
 
             val buildTasks = tasksMap[ArtifactBuildTask::class.java]
             if (!ContainerUtil.isEmpty(buildTasks)) {
@@ -178,16 +189,18 @@ class MyProjectTaskRunner(private val trueCallback: CompileStatusNotification) :
             }
         }
 
-        private fun buildArtifacts(project: Project,
-                                   artifacts: List<Artifact>,
-                                   sessionId: Any?,
-                                   compileNotification: CompileStatusNotification?,
-                                   forceArtifactBuild: Boolean) {
+        private fun buildArtifacts(
+            project: Project,
+            artifacts: List<Artifact>,
+            sessionId: Any?,
+            compileNotification: CompileStatusNotification?,
+            forceArtifactBuild: Boolean
+        ) {
             if (!artifacts.isEmpty()) {
                 val scope = ArtifactCompileScope.createArtifactsScope(project, artifacts, forceArtifactBuild)
                 ArtifactsWorkspaceSettings.getInstance(project).setArtifactsToBuild(artifacts)
                 EXECUTION_SESSION_ID_KEY.set(scope, sessionId)
-                //in external build we can set 'rebuild' flag per target type
+                // in external build we can set 'rebuild' flag per target type
                 CompilerManager.getInstance(project).make(scope, compileNotification)
             }
         }

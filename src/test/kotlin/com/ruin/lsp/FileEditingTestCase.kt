@@ -1,28 +1,21 @@
 package org.intellivim
 
 import com.intellij.ide.impl.ProjectUtil
-import com.intellij.idea.IdeaTestApplication
 import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.application.WriteAction
 import com.intellij.openapi.fileEditor.FileDocumentManager
-import com.intellij.openapi.project.ProjectManager
-import com.intellij.openapi.project.ex.ProjectManagerEx
-import com.intellij.openapi.project.impl.ProjectManagerImpl
-import com.intellij.openapi.util.Disposer
 import com.intellij.openapi.util.ThrowableComputable
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.PsiDocumentManager
 import com.intellij.psi.PsiFile
-import com.intellij.testFramework.RunAll
 import com.ruin.lsp.BaseTestCase
 import com.ruin.lsp.util.getDocument
 import com.ruin.lsp.util.getPsiFile
 import com.ruin.lsp.util.getVirtualFile
+import java.io.FileNotFoundException
+import java.io.IOException
 import junit.framework.TestCase
 import org.eclipse.lsp4j.TextDocumentItem
 import org.eclipse.lsp4j.VersionedTextDocumentIdentifier
-import java.io.FileNotFoundException
-import java.io.IOException
 
 /**
  * Convenient base test case for commands that
@@ -36,7 +29,6 @@ abstract class FileEditingTestCase : BaseTestCase() {
 
     private var originalContents: ByteArray? = null
     private var psiOriginalContents: ByteArray? = null
-
 
     protected abstract val filePath: String
 
@@ -60,7 +52,6 @@ abstract class FileEditingTestCase : BaseTestCase() {
                 TestCase.fail("Unable to read file contents")
                 return null
             }
-
         }
 
     @Throws(Exception::class)
@@ -95,7 +86,7 @@ abstract class FileEditingTestCase : BaseTestCase() {
     }
 
     fun makeVersionedTextDocumentIdentifier(version: Int) =
-        VersionedTextDocumentIdentifier(version).apply{ uri = file.url }
+        VersionedTextDocumentIdentifier(version).apply { uri = file.url }
 
     fun makeVersionedTextDocumentIdentifier(filePath: String, version: Int): VersionedTextDocumentIdentifier {
         val file = getVirtualFile(project, filePath)
@@ -171,7 +162,6 @@ abstract class FileEditingTestCase : BaseTestCase() {
         assertVirtualFileContentsChanged()
         assertVirtualFileContains(expectedContents)
     }
-
 
     /*
      * utils

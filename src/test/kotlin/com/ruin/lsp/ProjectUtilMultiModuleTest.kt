@@ -1,10 +1,9 @@
 package com.ruin.lsp
 
-import com.ruin.lsp.util.getURIForFile
 import com.ruin.lsp.util.getPsiFile
+import com.ruin.lsp.util.getURIForFile
 import com.ruin.lsp.util.resolvePsiFromUri
 import java.io.File
-
 
 class ProjectUtilMultiModuleTest : BaseTestCase() {
 
@@ -24,4 +23,3 @@ class ProjectUtilMultiModuleTest : BaseTestCase() {
         assertEquals(expectedTarget, file)
     }
 }
-

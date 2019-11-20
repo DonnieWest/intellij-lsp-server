@@ -21,8 +21,8 @@ class CompletionCommandTestCase : CompletionCommandTestBase() {
         checkContainsCompletion(Position(13, 29), true, "notBoring(int number) : void", "notBoring(${'$'}${'{'}1:number${'}'})${'$'}0")
 
     fun `test variable completion`() =
-        checkContainsCompletion(Position(15, 12), false,"list : ArrayList<String>", "list")
+        checkContainsCompletion(Position(15, 12), false, "list : ArrayList<String>", "list")
 
     fun `test class completion`() =
-        checkContainsCompletion(Position(13, 17), false,"org.lsp.javaproject.Dummy", "Dummy")
+        checkContainsCompletion(Position(13, 17), false, "org.lsp.javaproject.Dummy", "Dummy")
 }

@@ -6,19 +6,16 @@ import com.intellij.openapi.command.UndoConfirmationPolicy
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.editor.Document
 import com.intellij.openapi.fileEditor.FileDocumentManager
-import com.intellij.openapi.fileEditor.impl.FileDocumentManagerImpl
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.openapi.util.Computable
 import com.intellij.openapi.util.Ref
 import com.intellij.openapi.vfs.VirtualFileManager
-import com.intellij.openapi.vfs.newvfs.NewVirtualFileSystem
 import com.intellij.psi.PsiDocumentManager
 import com.intellij.util.diff.Diff
 import com.ruin.lsp.util.*
 import com.ruin.lsp.values.DocumentUri
 import org.eclipse.lsp4j.*
-
 
 private val LOG = Logger.getInstance(WorkspaceManager::class.java)
 
@@ -33,13 +30,15 @@ class WorkspaceManager {
     val managedTextDocuments: HashMap<DocumentUri, ManagedTextDocument> = HashMap()
 
     @Synchronized
-    fun onTextDocumentOpened(params: DidOpenTextDocumentParams,
-                             project: Project,
-                             client: MyLanguageClient? = null,
-                             server: MyLanguageServer? = null) {
+    fun onTextDocumentOpened(
+        params: DidOpenTextDocumentParams,
+        project: Project,
+        client: MyLanguageClient? = null,
+        server: MyLanguageServer? = null
+    ) {
         val textDocument = params.textDocument
 
-        if(managedTextDocuments.containsKey(textDocument.uri)) {
+        if (managedTextDocuments.containsKey(textDocument.uri)) {
             LOG.warn("URI was opened again without being closed, resetting: ${textDocument.uri}")
             managedTextDocuments.remove(textDocument.uri)
         }
@@ -70,7 +69,7 @@ class WorkspaceManager {
             true
         }))
 
-        if(!success) {
+        if (!success) {
             LOG.warn("Couldn't open Document for ${textDocument.uri}!")
             return
         }
@@ -89,7 +88,7 @@ class WorkspaceManager {
     fun onTextDocumentClosed(params: DidCloseTextDocumentParams) {
         val textDocument = params.textDocument
 
-        if(!managedTextDocuments.containsKey(textDocument.uri)) {
+        if (!managedTextDocuments.containsKey(textDocument.uri)) {
             LOG.warn("Attempted to close document without opening it at: ${textDocument.uri}")
             return
         }
@@ -104,7 +103,7 @@ class WorkspaceManager {
         val textDocument = params.textDocument
         val contentChanges = params.contentChanges
 
-        if(!managedTextDocuments.containsKey(textDocument.uri)) {
+        if (!managedTextDocuments.containsKey(textDocument.uri)) {
             LOG.warn("Tried handling didChange for ${textDocument.uri}, but it wasn't open")
             return
         }
@@ -122,8 +121,10 @@ class WorkspaceManager {
     }
 
     @Synchronized
-    fun onTextDocumentSaved(params: DidSaveTextDocumentParams,
-                            project: Project) {
+    fun onTextDocumentSaved(
+        params: DidSaveTextDocumentParams,
+        project: Project
+    ) {
         val textDocument = params.textDocument
         val text = params.text
 
@@ -136,7 +137,7 @@ class WorkspaceManager {
 
         val managedTextDoc = managedTextDocuments[textDocument.uri]!!
 
-        ApplicationManager.getApplication().invokeAndWait(asWriteAction( Runnable {
+        ApplicationManager.getApplication().invokeAndWait(asWriteAction(Runnable {
             val psi = resolvePsiFromUri(project, textDocument.uri) ?: return@Runnable
             val doc = getDocument(psi) ?: return@Runnable
 
@@ -163,7 +164,7 @@ class WorkspaceManager {
 
         var applied = false
         edit.documentChanges?.forEach { textDocumentEdit ->
-            val result = applyTextDocumentEdit(textDocumentEdit, project)
+            val result = applyTextDocumentEdit(textDocumentEdit.left, project)
             applied = applied || result
         }
 
@@ -207,7 +208,7 @@ class WorkspaceManager {
             doc.text
         }))
 
-        if(text == null) {
+        if (text == null) {
             LOG.warn("Couldn't open Document for ${edit.textDocument.uri}!")
             return false
         }
@@ -239,25 +240,24 @@ class WorkspaceManager {
 
         val file = resolvePsiFromUri(project, textDocument.uri)
 
-        if(file == null) {
+        if (file == null) {
             LOG.warn("Couldn't resolve Psi file at ${textDocument.uri}")
             return false
         }
 
         val ref: Ref<Boolean> = Ref(false)
         ApplicationManager.getApplication().invokeAndWait {
-            CommandProcessor.getInstance().executeCommand(project, asWriteAction( Runnable {
+            CommandProcessor.getInstance().executeCommand(project, asWriteAction(Runnable {
                 val doc = getDocument(file)
 
                 if (doc != null) {
-                    if(managedTextDoc.contents != doc.text) {
-                        val change = Diff.buildChanges(managedTextDoc.contents, doc.text)
+                    if (managedTextDoc.contents != doc.text) {
                         LOG.error("Ground truth differed upon change! Old: \n${managedTextDoc.contents}\nNew: \n${doc.text}")
                         return@Runnable
                     }
                     LOG.debug("Doc before:\n\n${doc.text}\n\n")
 
-                    if(!doc.isWritable) {
+                    if (!doc.isWritable) {
                         LOG.warn("Document at ${textDocument.uri} wasn't writable!")
                         return@Runnable
                     }
@@ -304,7 +304,6 @@ data class ManagedTextDocument(var identifier: VersionedTextDocumentIdentifier, 
 
 private fun normalizeText(text: String) = text.replace("\r\n", "\n")
 
-
 /**
  * Sorts text edits from furthest in the file to nearest to the top of the file.
  *
@@ -315,7 +314,6 @@ fun sortTextEditChanges(edits: List<TextEdit>?): List<TextEdit>? =
 
 fun sortContentChangeEventChanges(edits: List<TextDocumentContentChangeEvent>?): List<TextDocumentContentChangeEvent>? =
     edits?.sortedWith(compareBy({ it.range.start.line }, { it.range.start.character }))?.reversed()
-
 
 fun applyTextEditChanges(doc: Document, contentChanges: List<TextEdit>?) =
     contentChanges?.forEach { applyChange(doc, it) }
@@ -330,7 +328,7 @@ private fun applyChange(doc: Document, change: TextEdit) {
 }
 private fun applyChange(doc: Document, change: TextDocumentContentChangeEvent) {
     LOG.debug("Applying change: $change")
-    if(change.range == null) {
+    if (change.range == null) {
         // Change is the full insertText of the document
         doc.setText(change.text)
     } else {

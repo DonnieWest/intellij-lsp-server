@@ -6,5 +6,4 @@ package org.lsp.kotlinproject.subpackage
 class AlsoNotImported {
 
     fun notUsed() {}
-
 }

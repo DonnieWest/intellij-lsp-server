@@ -21,4 +21,3 @@ class CompletionItemResolveCommandTestCase : CompletionItemResolveCommandTestBas
         checkHasAdditionalEdits("foo.AlreadyImported", listOf())
     }
 }
-

@@ -47,7 +47,7 @@ class HoverCommand(val position: Position) : DocumentCommand<Hover>, Disposable 
     }
 
     private fun provider(language: Language): DocumentationProvider? {
-        return when(language) {
+        return when (language) {
             is JavaLanguage -> HoverDocumentationProvider()
             is KotlinLanguage -> HoverDocumentationProviderKt()
             else -> null

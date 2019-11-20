@@ -1,15 +1,14 @@
 package com.ruin.lsp.model
 
+import com.intellij.ui.IdeBorderFactory
+import com.intellij.ui.PortField
 import java.awt.BorderLayout
 import java.awt.GridBagConstraints
 import java.awt.GridBagLayout
-import javax.swing.JPanel
-import com.intellij.ui.IdeBorderFactory
-import com.intellij.ui.PortField
 import java.awt.Insets
 import java.text.NumberFormat
 import javax.swing.JLabel
-
+import javax.swing.JPanel
 
 class LanguageServerConfigurableUI : JPanel() {
     private var portNumberField: PortField

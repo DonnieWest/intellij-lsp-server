@@ -3,8 +3,8 @@ package com.ruin.lsp.commands.document.symbol
 import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiFile
 import com.intellij.psi.PsiRecursiveElementVisitor
-import org.eclipse.lsp4j.jsonrpc.CancelChecker
 import java.lang.UnsupportedOperationException
+import org.eclipse.lsp4j.jsonrpc.CancelChecker
 
 internal class DocumentSymbolPsiVisitor(
     private val psiFile: PsiFile,
@@ -26,4 +26,3 @@ internal class DocumentSymbolPsiVisitor(
         throw UnsupportedOperationException("Use visit() instead.")
     }
 }
-

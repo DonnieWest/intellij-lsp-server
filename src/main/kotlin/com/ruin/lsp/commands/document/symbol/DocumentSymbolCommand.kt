@@ -5,14 +5,16 @@ import com.ruin.lsp.commands.DocumentCommand
 import com.ruin.lsp.commands.ExecutionContext
 import com.ruin.lsp.model.LanguageServerException
 import com.ruin.lsp.util.*
+import org.eclipse.lsp4j.DocumentSymbol
 import org.eclipse.lsp4j.SymbolInformation
 import org.eclipse.lsp4j.TextDocumentIdentifier
+import org.eclipse.lsp4j.jsonrpc.messages.Either
 
 class DocumentSymbolCommand(
     private val textDocumentIdentifier: TextDocumentIdentifier
-) : DocumentCommand<MutableList<SymbolInformation>> {
+) : DocumentCommand<MutableList<Either<SymbolInformation, DocumentSymbol>>> {
 
-    override fun execute(ctx: ExecutionContext): MutableList<SymbolInformation> {
+    override fun execute(ctx: ExecutionContext): MutableList<Either<SymbolInformation, DocumentSymbol>> {
         val uri = textDocumentIdentifier.uri
         val document = getDocument(ctx.file) ?: throw LanguageServerException("No document found.")
         val symbols = mutableListOf<SymbolInformation>()
@@ -24,7 +26,9 @@ class DocumentSymbolCommand(
             }
         }.visit()
         symbols.sortBy { it.location.range.start.toOffset(document) }
-        return symbols.toMutableList()
+        return symbols.map {
+            Either.forLeft<SymbolInformation, DocumentSymbol>(it)
+        }.toMutableList()
     }
 }
 

@@ -1,6 +1,5 @@
 package org.lsp.kotlinproject
 
-
 /**
  * @author dhleong
  */

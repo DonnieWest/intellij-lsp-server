@@ -16,7 +16,7 @@ import java.util.stream.Collectors
 /**
  * Massive workaround to get the CompileContext (list of error/warning locations) from a ProjectTask.
  */
-class MyProjectTaskManager(val project: Project, val callback: CompileStatusNotification) : ProjectTaskManagerImpl(project) {
+class MyProjectTaskManager(val project: Project, private val callback: CompileStatusNotification) : ProjectTaskManagerImpl(project) {
 
     // if only this were protected.
     private val myDefaultProjectTaskRunner = MyProjectTaskRunner(callback)
@@ -71,8 +71,10 @@ class MyProjectTaskManager(val project: Project, val callback: CompileStatusNoti
         }
     }
 
-    private fun visitTasks(tasks: Collection<ProjectTask>,
-                           consumer: Consumer<Collection<ProjectTask>>) {
+    private fun visitTasks(
+        tasks: Collection<ProjectTask>,
+        consumer: Consumer<Collection<ProjectTask>>
+    ) {
         for (child in tasks) {
             val taskDependencies: Collection<ProjectTask> = if (child is AbstractProjectTask) {
                 child.dependsOn

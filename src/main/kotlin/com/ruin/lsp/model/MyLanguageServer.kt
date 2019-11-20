@@ -10,14 +10,13 @@ import com.ruin.lsp.commands.DocumentCommand
 import com.ruin.lsp.commands.ExecutionContext
 import com.ruin.lsp.commands.ProjectCommand
 import com.ruin.lsp.commands.document.diagnostics.DiagnosticsThread
-import com.ruin.lsp.commands.document.find.FindImplementationCommand
-import com.ruin.lsp.commands.project.dialog.OpenProjectStructureCommand
-import com.ruin.lsp.commands.project.dialog.ToggleFrameVisibilityCommand
 import com.ruin.lsp.commands.project.run.BuildProjectCommand
 import com.ruin.lsp.commands.project.run.RunConfigurationsCommand
 import com.ruin.lsp.commands.project.run.RunProjectCommand
 import com.ruin.lsp.util.*
 import com.ruin.lsp.values.DocumentUri
+import java.util.concurrent.CompletableFuture
+import java.util.concurrent.Future
 import org.eclipse.lsp4j.*
 import org.eclipse.lsp4j.jsonrpc.CancelChecker
 import org.eclipse.lsp4j.jsonrpc.CompletableFutures
@@ -25,8 +24,6 @@ import org.eclipse.lsp4j.jsonrpc.messages.Either
 import org.eclipse.lsp4j.services.LanguageClient
 import org.eclipse.lsp4j.services.LanguageClientAware
 import org.eclipse.lsp4j.services.LanguageServer
-import java.util.concurrent.CompletableFuture
-import java.util.concurrent.Future
 
 class MyLanguageServer : LanguageServer, MyLanguageServerExtensions, LanguageClientAware {
     private val LOG = Logger.getInstance(MyLanguageServer::class.java)
@@ -60,7 +57,6 @@ class MyLanguageServer : LanguageServer, MyLanguageServerExtensions, LanguageCli
     }
 
     override fun exit() {
-
     }
 
     override fun connect(client: LanguageClient?) {
@@ -94,21 +90,21 @@ class MyLanguageServer : LanguageServer, MyLanguageServerExtensions, LanguageCli
 
     override fun getWorkspaceService() = myWorkspaceService
 
-
     // LSP protocol extensions for IDEA-specific features
 
     override fun runConfigurations(params: TextDocumentPositionParams): CompletableFuture<MutableList<RunConfigurationDescription>> =
         asInvokeAndWaitFuture(context.rootProject!!, RunConfigurationsCommand())
 
     override fun buildProject(params: BuildProjectParams): CompletableFuture<BuildProjectResult> =
-        asInvokeAndWaitFuture(context.rootProject!!, BuildProjectCommand(params.id, params.forceMakeProject, params.ignoreErrors, this.context.client!!))
+        asInvokeAndWaitFuture(context.rootProject!!, BuildProjectCommand(params.id, params.forceMakeProject, this.context.client!!))
 
     override fun runProject(params: RunProjectParams): CompletableFuture<RunProjectCommandLine> =
         asInvokeAndWaitFuture(context.rootProject!!, RunProjectCommand(params.id))
 
-    fun <T: Any?> asInvokeAndWaitFuture(
+    fun <T : Any?> asInvokeAndWaitFuture(
         project: Project,
-        command: ProjectCommand<T>): CompletableFuture<T> =
+        command: ProjectCommand<T>
+    ): CompletableFuture<T> =
         CompletableFuture.supplyAsync {
             synchronized(this) {
                 invokeAndWaitIfNeeded(Computable<T> {
@@ -117,18 +113,20 @@ class MyLanguageServer : LanguageServer, MyLanguageServerExtensions, LanguageCli
             }
         }
 
-    fun <T: Any?> asInvokeAndWaitFuture(
+    fun <T : Any?> asInvokeAndWaitFuture(
         project: Project,
         uri: DocumentUri,
-        command: DocumentCommand<T>): CompletableFuture<T> =
+        command: DocumentCommand<T>
+    ): CompletableFuture<T> =
         CompletableFuture.supplyAsync {
             executeAndGetResult(project, uri, command, this.context, this)
         }
 
-    fun <T: Any?> asCancellableInvokeAndWaitFuture(
+    fun <T : Any?> asCancellableInvokeAndWaitFuture(
         project: Project,
         uri: DocumentUri,
-        command: DocumentCommand<T>): CompletableFuture<T> =
+        command: DocumentCommand<T>
+    ): CompletableFuture<T> =
         CompletableFutures.computeAsync { cancelToken ->
             executeAndGetResult(project, uri, command, this.context, this, cancelToken)
         }
@@ -142,7 +140,8 @@ private fun <T : Any?> executeAndGetResult(
     command: DocumentCommand<T>,
     context: Context = Context(),
     server: LanguageServer,
-    cancelToken: CancelChecker? = null): T {
+    cancelToken: CancelChecker? = null
+): T {
     return synchronized(server) {
         invokeAndWaitIfNeeded(Computable<T> {
             val tempDir = context.config["temporaryDirectory"]
@@ -158,10 +157,12 @@ private fun <T : Any?> executeAndGetResult(
     }
 }
 
-fun <T: Any?> invokeCommandAndWait(command: com.ruin.lsp.commands.DocumentCommand<T>,
-                                  project: Project,
-                                  file: PsiFile,
-                                  client: LanguageClient? = null): T {
+fun <T : Any?> invokeCommandAndWait(
+    command: DocumentCommand<T>,
+    project: Project,
+    file: PsiFile,
+    client: LanguageClient? = null
+): T {
     val context = ExecutionContext(project, file, client)
 
     val result = invokeAndWaitIfNeeded(Computable {
@@ -172,8 +173,10 @@ fun <T: Any?> invokeCommandAndWait(command: com.ruin.lsp.commands.DocumentComman
     return result
 }
 
-fun <T: Any?> invokeCommandAndWait(command: com.ruin.lsp.commands.ProjectCommand<T>,
-                                  project: Project): T {
+fun <T : Any?> invokeCommandAndWait(
+    command: ProjectCommand<T>,
+    project: Project
+): T {
     val result = invokeAndWaitIfNeeded(Computable {
         command.execute(project)
     })
@@ -199,12 +202,12 @@ fun defaultServerCapabilities() =
         documentHighlightProvider = true
         documentSymbolProvider = true
         workspaceSymbolProvider = true
-        codeActionProvider = false
+        codeActionProvider = Either.forLeft(false)
         codeLensProvider = CodeLensOptions(false)
         documentFormattingProvider = true
         documentRangeFormattingProvider = true
         documentOnTypeFormattingProvider = null
-        renameProvider = false
+        renameProvider = Either.forLeft(false)
         documentLinkProvider = null
         executeCommandProvider = ExecuteCommandOptions()
         experimental = null

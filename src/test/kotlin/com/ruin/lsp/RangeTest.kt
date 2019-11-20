@@ -29,5 +29,5 @@ class RangeTest : FileEditingTestCase() {
     fun `test range empty`() = checkRangeEquals(46, 10, 46, 10, "")
     fun `test range same line`() = checkRangeEquals(8, 0, 8, 6, "public")
     fun `test range line break`() = checkRangeEquals(17, 4, 18, 5, "    thingy = 12;\n    }")
-    fun `test range multiple lines`() = checkRangeEquals(32,0,35,0, "\n    Dummy() {\n    }\n")
+    fun `test range multiple lines`() = checkRangeEquals(32, 0, 35, 0, "\n    Dummy() {\n    }\n")
 }

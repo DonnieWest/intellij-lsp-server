@@ -2,9 +2,6 @@ package com.ruin.lsp
 
 import com.intellij.JavaTestUtil
 import com.intellij.JavaTestUtil.getTestJdk
-import com.intellij.ide.impl.ProjectUtil
-import com.intellij.openapi.Disposable
-import com.intellij.openapi.project.ex.ProjectManagerEx
 import com.intellij.openapi.roots.OrderRootType
 import com.intellij.openapi.vfs.JarFileSystem
 import com.intellij.psi.impl.compiled.ClsFileImpl
@@ -13,15 +10,14 @@ import com.ruin.lsp.util.getJarEntryURI
 import com.ruin.lsp.util.getURIForFile
 import com.ruin.lsp.util.resolvePsiFromUri
 import com.ruin.lsp.values.DocumentUri
-import junit.framework.TestCase
-import org.apache.commons.io.FileUtils
-import org.apache.log4j.Logger
 import java.io.File
-import java.nio.file.Path
 import java.io.IOException
 import java.nio.file.FileSystems
 import java.nio.file.Files
-
+import java.nio.file.Path
+import junit.framework.TestCase
+import org.apache.commons.io.FileUtils
+import org.apache.log4j.Logger
 
 class GotoFileInsideJarTest : PlatformTestCase() {
     private var mockClient = MockClient()
@@ -108,7 +104,7 @@ private class MockClient {
     }
 
     private fun extractFileToTempdir(jarFilepath: String, internalPath: String): File {
-        val jarFile = jarFilepath.replace("""jar://""".toRegex(), "").let { File(it) }
+        val jarFile = File(jarFilepath.replace("""jar://""".toRegex(), ""))
         val outDir = File(tempDir, "lsp-intellij")
         val jarDir = File(outDir, jarFile.nameWithoutExtension)
         jarDir.mkdirs()
@@ -127,7 +123,7 @@ private class MockClient {
     }
 }
 
-val LOG = Logger.getLogger(GotoFileInsideJarTest::class.java)
+val LOG: Logger = Logger.getLogger(GotoFileInsideJarTest::class.java)
 
 @Throws(IOException::class)
 fun extractFile(zipFile: Path, fileName: String, outputFile: Path) {

@@ -15,10 +15,12 @@ abstract class FindCommandTestBase : BaseTestCase() {
         return Pair(command(at, file.url), file.url)
     }
 
-    private fun checkFindsLocation(command: DocumentCommand<MutableList<Location>>,
-                                   uri: String,
-                                   expectedFile: String,
-                                   expectedPos: Position) {
+    private fun checkFindsLocation(
+        command: DocumentCommand<MutableList<Location>>,
+        uri: String,
+        expectedFile: String,
+        expectedPos: Position
+    ) {
         val result = invokeCommandAndWait(command, project, resolvePsiFromUri(project, uri)!!)
         assertTrue("Expected ($expectedFile, $expectedPos to be included in results but got: " +
             "\n$result",
@@ -33,8 +35,10 @@ abstract class FindCommandTestBase : BaseTestCase() {
         checkFindsLocation(command, uri, expectedFile, expectedPos)
     }
 
-    private fun checkFindsNothing(command: DocumentCommand<MutableList<Location>>,
-                                  uri: String) {
+    private fun checkFindsNothing(
+        command: DocumentCommand<MutableList<Location>>,
+        uri: String
+    ) {
         val result = invokeCommandAndWait(command, project, resolvePsiFromUri(project, uri)!!)
         assertTrue("Expected nothing to be found but got: \n$result", result.isEmpty())
     }

@@ -7,12 +7,10 @@ import com.intellij.execution.executors.DefaultRunExecutor
 import com.intellij.execution.impl.DefaultJavaProgramRunner
 import com.intellij.execution.impl.RunManagerImpl
 import com.intellij.execution.junit.JUnitConfiguration
-import com.intellij.execution.runners.ExecutionEnvironment
 import com.intellij.execution.runners.ExecutionEnvironmentBuilder
 import com.intellij.openapi.application.TransactionGuard
 import com.intellij.openapi.compiler.CompilerManager
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.projectRoots.ProjectJdkTable
 import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.openapi.util.Ref
 import com.intellij.openapi.vfs.impl.VirtualFileManagerImpl
@@ -26,7 +24,6 @@ import com.ruin.lsp.model.EnvironmentVariable
 import com.ruin.lsp.model.RunProjectCommandLine
 import org.jetbrains.kotlin.idea.run.KotlinRunConfiguration
 import org.slf4j.LoggerFactory
-import java.nio.file.Path
 
 private val LOG = LoggerFactory.getLogger(RunProjectCommand::class.java)
 
@@ -48,7 +45,7 @@ class RunProjectCommand(private val id: String) : ProjectCommand<RunProjectComma
         val executor = DefaultRunExecutor.getRunExecutorInstance()
         val runner = DefaultJavaProgramRunner.getInstance() as DefaultJavaProgramRunner
 
-        when(config) {
+        when (config) {
             is ApplicationConfiguration, is KotlinRunConfiguration, is JUnitConfiguration -> {
                 val env = ExecutionEnvironmentBuilder.create(config.project, executor, config).build()
                 val state = config.getState(executor, env) ?: return RunProjectCommandLine(true)
@@ -80,13 +77,13 @@ fun isUpToDate(project: Project, config: RunConfiguration): Boolean {
         return false
     }
 
-    if (config is RunConfigurationBase && (config as RunConfigurationBase).excludeCompileBeforeLaunchOption()) {
+    if (config is RunConfigurationBase<*> && (config as RunConfigurationBase<*>).excludeCompileBeforeLaunchOption()) {
         return false
     }
 
     val task = modulesBuildTask(project, config as RunProfileWithCompileBeforeLaunchOption, false) ?: return false
 
-    val compilerManager =  CompilerManager.getInstance(project)
+    val compilerManager = CompilerManager.getInstance(project)
 
     return if (task is ProjectTaskList) {
         task.map { (it as ModuleBuildTask).module }.toTypedArray()

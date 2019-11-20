@@ -1,7 +1,6 @@
 package com.ruin.lsp.commands.project.symbol
 
 import com.ruin.lsp.BaseTestCase
-import com.ruin.lsp.JAVA_PROJECT
 import com.ruin.lsp.model.invokeCommandAndWait
 import org.eclipse.lsp4j.SymbolInformation
 

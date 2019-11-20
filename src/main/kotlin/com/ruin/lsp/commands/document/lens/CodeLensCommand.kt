@@ -15,7 +15,6 @@ import com.intellij.openapi.actionSystem.DefaultActionGroup
 import com.intellij.openapi.editor.Document
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
-import com.intellij.psi.PsiFile
 import com.ruin.lsp.commands.DocumentCommand
 import com.ruin.lsp.commands.ExecutionContext
 import com.ruin.lsp.commands.project.run.description
@@ -32,7 +31,6 @@ class CodeLensCommand : DocumentCommand<MutableList<CodeLens>> {
     override fun execute(ctx: ExecutionContext): MutableList<CodeLens> {
         val doc = getDocument(ctx.file) ?: return mutableListOf()
 
-
         val markers = LineMarkersPass.queryLineMarkers(ctx.file, doc)
         val lineMarkers = markers.mapNotNull { it.codeLens(ctx.project, doc) }
 
@@ -44,7 +42,7 @@ class CodeLensCommand : DocumentCommand<MutableList<CodeLens>> {
 private fun LineMarkerInfo<PsiElement>.codeLens(project: Project, doc: Document): CodeLens? {
     val actions = (this.createGutterRenderer()?.popupMenuActions as? DefaultActionGroup)?.childActionsOrStubs
         ?.filter { a -> a is LineMarkerActionWrapper }
-    if(actions == null || actions.isEmpty()) {
+    if (actions == null || actions.isEmpty()) {
         return null
     }
 
@@ -67,7 +65,7 @@ private fun LineMarkerInfo<PsiElement>.codeLens(project: Project, doc: Document)
 
     // TODO: Prevent creating a bunch of configs, instead cache the PSI elements and create configs on-demand
     val runManager = RunManager.getInstance(project)
-    if(!runManager.hasSettings(context)) {
+    if (!runManager.hasSettings(context)) {
         runManager.addConfiguration(context)
     }
 
@@ -87,7 +85,6 @@ private fun Icon.runConfigurationState() =
         AllIcons.RunConfigurations.TestState.Yellow2 -> RunConfigurationState.TestUnknown
         else -> RunConfigurationState.Run
     }
-
 
 // items copied from BaseRunConfigurationAction
 

@@ -35,7 +35,7 @@ class WorkspaceSymbolCommandTestCase : WorkspaceSymbolCommandTestBase() {
         )
     ))
 
-    fun `test finds constant`()  = checkHasResult("STRING", listOf(
+    fun `test finds constant`() = checkHasResult("STRING", listOf(
         SymbolInformation("STRING", SymbolKind.Constant,
             Location(uriForPath(projectName, CONSTANTS_FILE_PATH), range(4, 32, 4, 38)),
             "Constants"

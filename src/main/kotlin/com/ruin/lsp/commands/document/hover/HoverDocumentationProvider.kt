@@ -38,10 +38,10 @@ class HoverDocumentationProvider : JavaDocumentationProvider() {
         if (elt is PsiNewExpression) {
             var targetClass: PsiClass? = null
 
-            if (anElement is PsiJavaCodeReferenceElement) {     // new Class<caret>
+            if (anElement is PsiJavaCodeReferenceElement) { // new Class<caret>
                 val resolve = anElement.resolve()
                 if (resolve is PsiClass) targetClass = resolve
-            } else if (anElement is PsiClass) { //Class in completion
+            } else if (anElement is PsiClass) { // Class in completion
                 targetClass = anElement
             } else if (anElement is PsiNewExpression) { // new Class(<caret>)
                 val reference = anElement.classReference

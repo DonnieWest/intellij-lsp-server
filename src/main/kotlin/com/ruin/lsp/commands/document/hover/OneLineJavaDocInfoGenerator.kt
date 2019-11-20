@@ -19,8 +19,8 @@ import java.util.*
  * Creates a one-line documentation string for use in minibuffers and the like when hovering over a symbol.
  * Mainly copied from JavaDocInfoGenerator.
  */
-class OneLineJavaDocInfoGenerator(myProject: Project, private val myElement: PsiElement)
-    : JavaDocInfoGenerator(myProject, myElement) {
+class OneLineJavaDocInfoGenerator(myProject: Project, private val myElement: PsiElement) :
+    JavaDocInfoGenerator(myProject, myElement) {
     override fun generateDocInfo(docURLs: MutableList<String>?): String? {
         val buffer = StringBuilder()
 
@@ -141,7 +141,7 @@ private fun generateMethodSignature(buffer: StringBuilder, method: PsiMethod, us
     }
 
     val typeParamsString = generateTypeParameters(method, true)
-    StringUtil.unescapeXml(StringUtil.stripHtml(typeParamsString, true)).length
+    StringUtil.unescapeXmlEntities(StringUtil.stripHtml(typeParamsString, true)).length
     if (!typeParamsString.isEmpty()) {
         buffer.append(typeParamsString)
         buffer.append(NBSP)
@@ -186,7 +186,6 @@ private fun generateMethodSignature(buffer: StringBuilder, method: PsiMethod, us
         }
     }
 }
-
 
 /**
  * @return Length of the generated label.
@@ -312,8 +311,7 @@ fun generateType(buffer: StringBuilder, type: PsiType?, context: PsiElement, use
     if (typeToGen is PsiDisjunctionType || typeToGen is PsiIntersectionType) {
         if (!generateLink) {
             val canonicalText = if (useShortNames) typeToGen.presentableText else typeToGen.canonicalText
-            val text = canonicalText
-            buffer.append(text)
+            buffer.append(canonicalText)
             return canonicalText.length
         } else {
             val separator = if (typeToGen is PsiDisjunctionType) " | " else " & "

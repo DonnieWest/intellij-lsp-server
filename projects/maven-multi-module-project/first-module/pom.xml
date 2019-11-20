@@ -7,8 +7,7 @@
     <artifactId>maven-multi-module-project</artifactId>
     <version>0.1-SNAPSHOT</version>
   </parent>
-  <groupId>com.ruin.lsp</groupId>
-  <artifactId>first-module</artifactId>
+    <artifactId>first-module</artifactId>
   <version>0.1-SNAPSHOT</version>
   <name>first-module</name>
   <url>http://maven.apache.org</url>

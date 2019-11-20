@@ -1,5 +1,6 @@
 package com.ruin.lsp.commands.document.formatting
 
+import com.intellij.application.options.CodeStyle
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.psi.PsiFile
 import com.intellij.psi.codeStyle.CodeStyleManager
@@ -13,12 +14,12 @@ import org.eclipse.lsp4j.FormattingOptions
 import org.eclipse.lsp4j.Range
 import org.eclipse.lsp4j.TextEdit
 
-class DocumentFormattingCommand(val options: FormattingOptions, val range: Range? = null) : DocumentCommand<MutableList<TextEdit>> {
+class DocumentFormattingCommand(private val options: FormattingOptions, val range: Range? = null) : DocumentCommand<MutableList<TextEdit>> {
     override fun execute(ctx: ExecutionContext): MutableList<TextEdit> {
-        val manager = CodeStyleSettingsManager.getInstance()
-        val styleSettings = CodeStyleSettingsManager.getSettings(ctx.project).clone()
+        val manager = CodeStyleSettingsManager.getInstance(ctx.project)
+        val styleSettings = CodeStyle.getLanguageSettings(ctx.file)
 
-        val newSettings = configureSettings(styleSettings, options, ctx.file)
+        val newSettings = configureSettings(styleSettings as CodeStyleSettings, options, ctx.file)
 
         manager.setTemporarySettings(newSettings)
         val edits = differenceFromAction(ctx.file) { editor, copy ->

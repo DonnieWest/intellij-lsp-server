@@ -10,14 +10,12 @@ import com.intellij.openapi.editor.Document
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.EditorFactory
 import com.intellij.openapi.editor.LogicalPosition
-import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.progress.DumbProgressIndicator
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.util.Disposer
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiFile
-import com.intellij.psi.impl.PsiDocumentManagerBase
 import org.eclipse.lsp4j.Position
 import org.eclipse.lsp4j.Range
 import org.eclipse.lsp4j.TextEdit
@@ -49,8 +47,8 @@ fun withEditor(context: Disposable, file: PsiFile, position: Position = Position
     try {
         callback(editor)
     } catch (e: Exception) {
-        LOG.error("Exception during editor callback: " + e
-            + e.stackTrace.asList().joinToString("\n") { it.toString() }
+        LOG.error("Exception during editor callback: " + e +
+            e.stackTrace.asList().joinToString("\n") { it.toString() }
         )
     } finally {
         val editorFactory = EditorFactory.getInstance()
@@ -64,8 +62,8 @@ fun withEditor(context: Disposable, file: PsiFile, offset: Int, callback: (Edito
     try {
         callback(editor)
     } catch (e: Exception) {
-        LOG.error("Exception during editor callback: " + e
-            + e.stackTrace.asList().joinToString("\n") { it.toString() }
+        LOG.error("Exception during editor callback: " + e +
+            e.stackTrace.asList().joinToString("\n") { it.toString() }
         )
     } finally {
         val editorFactory = EditorFactory.getInstance()

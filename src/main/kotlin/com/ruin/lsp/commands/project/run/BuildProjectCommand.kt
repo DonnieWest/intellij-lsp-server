@@ -31,10 +31,11 @@ import org.eclipse.lsp4j.Range
 
 private val LOG = Logger.getInstance(LanguageServerRunner::class.java)
 
-class BuildProjectCommand(private val id: String,
-                          private val forceMakeProject: Boolean,
-                          private val ignoreErrors: Boolean,
-                          private val client: MyLanguageClient) : ProjectCommand<BuildProjectResult> {
+class BuildProjectCommand(
+    private val id: String,
+    private val forceMakeProject: Boolean,
+    private val client: MyLanguageClient
+) : ProjectCommand<BuildProjectResult> {
     override fun execute(ctx: Project): BuildProjectResult {
         if (ProjectRootManager.getInstance(ctx).projectSdk == null) {
             // TODO: throw an LSP error instead
@@ -46,7 +47,7 @@ class BuildProjectCommand(private val id: String,
         val setting = runManager.getConfigurationById(id) ?: return BuildProjectResult(false)
         val config = setting.configuration
 
-        if (config is RunConfigurationBase && config.excludeCompileBeforeLaunchOption()) {
+        if (config is RunConfigurationBase<*> && config.excludeCompileBeforeLaunchOption()) {
             return BuildProjectResult(false)
         }
 
@@ -64,8 +65,8 @@ class BuildProjectCommand(private val id: String,
         VirtualFileManagerImpl.getInstance().syncRefresh()
 
         try {
-            //val done = Semaphore()
-            //done.down()
+            // val done = Semaphore()
+            // done.down()
             TransactionGuard.submitTransaction(ctx, Runnable {
                 val sessionId = ExecutionManagerImpl.EXECUTION_SESSION_ID_KEY.get(env)
                 val projectTaskManager = MyProjectTaskManager(ctx, compileStatusNotification(client))
@@ -74,12 +75,12 @@ class BuildProjectCommand(private val id: String,
                         client.notifyBuildFinished(it.buildResult())
                     })
                 } else {
-                    //done.up()
+                    // done.up()
                 }
             })
             // can't wait here, as CompileDriver will try to run the callback that releases the semaphore on the EDT
             // after the compile finishes, which causes a deadlock as we're already on the EDT.
-            //done.waitFor()
+            // done.waitFor()
         } catch (e: Exception) {
             val writer = LogPrintWriter(LOG, Level.ERROR)
             e.printStackTrace(writer)
@@ -125,4 +126,3 @@ private fun CompilerMessageImpl.position() = Position(line, column)
 
 private fun CompilerMessageImpl.diagnostic() =
     Diagnostic(Range(position(), position()), message, category.diagnosticSeverity(), exportTextPrefix)
-

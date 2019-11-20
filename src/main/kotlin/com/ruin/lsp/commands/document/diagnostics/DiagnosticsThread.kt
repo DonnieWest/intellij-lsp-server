@@ -14,8 +14,6 @@ import com.intellij.openapi.util.Disposer
 import com.intellij.psi.PsiFile
 import com.ruin.lsp.util.getURIForFile
 import com.ruin.lsp.util.offsetToPosition
-import com.ruin.lsp.util.startProfiler
-import com.ruin.lsp.util.withProfiler
 import org.eclipse.lsp4j.Diagnostic
 import org.eclipse.lsp4j.DiagnosticSeverity
 import org.eclipse.lsp4j.PublishDiagnosticsParams
@@ -79,8 +77,11 @@ fun getHighlights(file: PsiFile, doc: Document): List<HighlightInfo> {
     }
 }
 
-fun doHighlighting(context: Disposable,
-                   doc: Document, psiFile: PsiFile): List<HighlightInfo> {
+fun doHighlighting(
+    context: Disposable,
+    doc: Document,
+    psiFile: PsiFile
+): List<HighlightInfo> {
 
     val progress = DaemonProgressIndicator()
 
@@ -93,7 +94,7 @@ fun doHighlighting(context: Disposable,
 
         // ensure we get fresh results; the restart also seems to
         //  prevent the "process canceled" issue (see #30)
-        //PsiDocumentManager.getInstance(document).commitAllDocuments()
+        // PsiDocumentManager.getInstance(document).commitAllDocuments()
 
         ReadAction.compute<List<HighlightInfo>, Exception> {
             // analyze!
@@ -105,6 +106,5 @@ fun doHighlighting(context: Disposable,
                 listOf()
             }
         }
-
     }, progress)
 }

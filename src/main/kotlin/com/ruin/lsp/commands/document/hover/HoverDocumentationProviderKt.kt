@@ -18,7 +18,6 @@ class HoverDocumentationProviderKt : AbstractDocumentationProvider() {
         return unescape(innerProvider.generateDoc(element, originalElement)?.split("\n")?.firstOrNull() ?: "")
     }
 
-
     override fun getUrlFor(element: PsiElement?, originalElement: PsiElement?): MutableList<String>? {
         return innerProvider.getUrlFor(element, originalElement)
     }
@@ -42,13 +41,12 @@ class HoverDocumentationProviderKt : AbstractDocumentationProvider() {
         return innerProvider.getDocumentationElementForLink(psiManager, link, context)
     }
 
-
     private fun unescape(s: String): String {
-        return s.replace("""<p>.*</p>""".toRegex(),  "") // remove docstring
-            .replace("""<div class='definition'>.*</div>""".toRegex(),  "")
+        return s.replace("""<p>.*</p>""".toRegex(), "") // remove docstring
+            .replace("""<div class='definition'>.*</div>""".toRegex(), "")
             .let { StringUtil.stripHtml(it, true) }
             .split("\n").first()
-            .let(StringUtil::unescapeXml)
+            .let(StringUtil::unescapeXmlEntities)
             .let(StringEscapeUtils::unescapeHtml) // converts HTML character entities
     }
 }

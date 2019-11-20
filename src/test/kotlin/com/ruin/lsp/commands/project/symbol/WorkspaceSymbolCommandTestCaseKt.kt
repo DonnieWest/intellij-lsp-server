@@ -41,14 +41,14 @@ class WorkspaceSymbolCommandTestCaseKt : WorkspaceSymbolCommandTestBase() {
         )
     ))
 
-    fun `test finds constant`()  = checkHasResult("STRING", listOf(
+    fun `test finds constant`() = checkHasResult("STRING", listOf(
         SymbolInformation("STRING", SymbolKind.Constant,
             Location(uriForPath(projectName, forKotlin(CONSTANTS_FILE_PATH)), range(10, 26, 10, 32)),
             "Constants"
         )
     ))
 
-    fun `test finds function outside package`()  = checkHasResult("outsidePackage", listOf(
+    fun `test finds function outside package`() = checkHasResult("outsidePackage", listOf(
         SymbolInformation("outsidePackage(int)", SymbolKind.Function,
             Location(uriForPath(projectName, forKotlin(DUMMY_FILE_PATH)), range(69, 4, 69, 18)),
             "DummyKt"

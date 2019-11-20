@@ -1,12 +1,11 @@
 package com.ruin.lsp.commands.document.find
 
-import com.intellij.codeInsight.TargetElementUtil
 import com.intellij.codeInsight.navigation.actions.GotoDeclarationAction
-import com.intellij.codeInsight.navigation.actions.GotoTypeDeclarationAction
 import com.intellij.ide.highlighter.JavaFileType
 import com.intellij.openapi.project.IndexNotReadyException
-import com.intellij.openapi.util.Ref
-import com.intellij.psi.*
+import com.intellij.psi.PsiClass
+import com.intellij.psi.PsiElement
+import com.intellij.psi.PsiMethod
 import com.intellij.psi.search.ProjectScope.getProjectScope
 import com.intellij.psi.search.searches.DefinitionsScopedSearch
 import com.intellij.psi.search.searches.SuperMethodsSearch
@@ -20,7 +19,9 @@ import com.ruin.lsp.util.location
 import com.ruin.lsp.util.toOffset
 import com.ruin.lsp.util.withEditor
 import org.eclipse.lsp4j.Location
+import org.eclipse.lsp4j.LocationLink
 import org.eclipse.lsp4j.Position
+import org.eclipse.lsp4j.jsonrpc.messages.Either
 import org.jetbrains.kotlin.backend.common.push
 import org.jetbrains.kotlin.builtins.KotlinBuiltIns
 import org.jetbrains.kotlin.descriptors.CallableMemberDescriptor
@@ -34,25 +35,24 @@ import org.jetbrains.kotlin.psi.*
 import org.jetbrains.kotlin.resolve.DescriptorToSourceUtils
 import org.jetbrains.kotlin.resolve.lazy.BodyResolveMode
 import org.jetbrains.kotlin.resolve.lazy.NoDescriptorForDeclarationException
-import java.util.*
 
-class FindDefinitionCommand(val position: Position) : DocumentCommand<MutableList<Location>> {
-    override fun execute(ctx: ExecutionContext): MutableList<Location> {
+class FindDefinitionCommand(val position: Position) : DocumentCommand<Either<MutableList<out Location>, MutableList<out LocationLink>>> {
+    override fun execute(ctx: ExecutionContext): Either<MutableList<out Location>, MutableList<out LocationLink>> {
         val doc = getDocument(ctx.file)
             ?: throw LanguageServerException("No document found.")
 
         val offset = position.toOffset(doc)
 
         val list = findDefinitionByReference(ctx, offset)
-        if(list != null) {
-            return list
+        if (list != null) {
+            return Either.forLeft(list)
         }
 
-        return when {
-            ctx.file.fileType is KotlinFileType -> findDefinitionForKotlin(ctx, offset)
-            ctx.file.fileType is JavaFileType -> forDefinitionForJava(ctx, offset)
+        return Either.forLeft(when (ctx.file.fileType) {
+            is KotlinFileType -> findDefinitionForKotlin(ctx, offset)
+            is JavaFileType -> forDefinitionForJava(ctx, offset)
             else -> mutableListOf()
-        }
+        })
     }
 
     private fun findDefinitionByReference(ctx: ExecutionContext, offset: Int): MutableList<Location>? {
@@ -86,12 +86,12 @@ class FindDefinitionCommand(val position: Position) : DocumentCommand<MutableLis
     private fun findDefinitionForKotlin(ctx: ExecutionContext, offset: Int): MutableList<Location> {
         try {
             var list = findKotlinDefinitionBySearcher(ctx, offset)
-            if(list != null) {
+            if (list != null) {
                 return list
             }
 
             list = findKotlinSuperMethod(ctx, offset)
-            if(list != null) {
+            if (list != null) {
                 return list
             }
 
@@ -103,7 +103,7 @@ class FindDefinitionCommand(val position: Position) : DocumentCommand<MutableLis
 
     private fun findKotlinDefinitionBySearcher(ctx: ExecutionContext, offset: Int): MutableList<Location>? {
         val elt = ctx.file.findElementAt(offset)
-        if(elt != null) {
+        if (elt != null) {
             val results: MutableList<Location> = mutableListOf()
             KotlinDefinitionsSearcher().execute(DefinitionsScopedSearch.SearchParameters(elt, getProjectScope(ctx.project), true)) {
                 val resolved = when (it) {

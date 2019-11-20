@@ -1,4 +1,4 @@
-package com.ruin.lsp.commands.document.completion;
+package com.ruin.lsp.commands.document.completion
 
 import com.intellij.testFramework.fixtures.LightCodeInsightFixtureTestCase
 import com.ruin.lsp.model.invokeCommandAndWait

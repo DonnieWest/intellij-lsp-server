@@ -1,9 +1,8 @@
 package com.ruin.lsp
 
 import com.intellij.ide.impl.ProjectUtil
-import com.ruin.lsp.util.getURIForFile
 import com.ruin.lsp.util.getPsiFile
-import com.ruin.lsp.util.resolveProjectFromRootUri
+import com.ruin.lsp.util.getURIForFile
 import com.ruin.lsp.util.resolvePsiFromUri
 import java.io.File
 
@@ -26,4 +25,3 @@ class ProjectUtilMavenMultiModuleTest : BaseTestCase() {
         assertEquals(expectedTarget, file!!)
     }
 }
-

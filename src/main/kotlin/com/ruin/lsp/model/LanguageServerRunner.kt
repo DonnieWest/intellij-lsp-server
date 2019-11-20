@@ -8,8 +8,6 @@ package com.ruin.lsp.model
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.ServiceManager
 import com.intellij.openapi.diagnostic.Logger
-import org.apache.log4j.Level
-import org.eclipse.lsp4j.jsonrpc.Launcher
 import java.io.IOException
 import java.net.InetAddress
 import java.net.ServerSocket
@@ -19,6 +17,8 @@ import java.util.concurrent.SynchronousQueue
 import java.util.concurrent.ThreadPoolExecutor
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
+import org.apache.log4j.Level
+import org.eclipse.lsp4j.jsonrpc.Launcher
 
 interface LanguageServerRunner {
     fun run(port: Int)
@@ -63,11 +63,9 @@ class LanguageServerRunnerImpl : LanguageServerRunner {
             } catch (e: IOException) {
                 LOG.error("Close ServerSocket exception: $e")
             }
-
         }
         serverSocket = null
     }
-
 
     @Synchronized
     private fun shutdownConnectionPool(now: Boolean) {
@@ -83,7 +81,7 @@ class LanguageServerRunnerImpl : LanguageServerRunner {
             try {
                 val server = LanguageServerService()
                 server.connect(connection)
-            } catch(e: IOException) {
+            } catch (e: IOException) {
                 LOG.error("Client socket connection error: $e")
             } finally {
                 LOG.info("LSP connection closed")

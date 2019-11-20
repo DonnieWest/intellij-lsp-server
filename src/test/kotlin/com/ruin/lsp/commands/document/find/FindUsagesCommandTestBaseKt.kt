@@ -1,7 +1,6 @@
 package com.ruin.lsp.commands.document.find
 
 import com.ruin.lsp.DUMMY_FILE_PATH
-import com.ruin.lsp.JAVA_PROJECT
 import com.ruin.lsp.KOTLIN_PROJECT
 import com.ruin.lsp.forKotlin
 import org.eclipse.lsp4j.Position

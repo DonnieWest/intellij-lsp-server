@@ -1,11 +1,10 @@
 package com.ruin.lsp.model
 
-import org.eclipse.lsp4j.Location
+import java.util.concurrent.CompletableFuture
 import org.eclipse.lsp4j.TextDocumentIdentifier
 import org.eclipse.lsp4j.TextDocumentPositionParams
 import org.eclipse.lsp4j.jsonrpc.services.JsonRequest
 import org.eclipse.lsp4j.jsonrpc.services.JsonSegment
-import java.util.concurrent.CompletableFuture
 
 /**
  * Extensions to the server-side LSP protocol for IDEA-specific features.
@@ -72,10 +71,12 @@ data class RunConfigurationData(val configuration: RunConfigurationDescription, 
  * A set of parameters for building a project with IDEA. Uses a configuration ID taken from an idea/runConfigurations
  * request.
  */
-data class BuildProjectParams(val textDocument: TextDocumentIdentifier,
-                              val id: ConfigId,
-                              val forceMakeProject: Boolean,
-                              val ignoreErrors: Boolean)
+data class BuildProjectParams(
+    val textDocument: TextDocumentIdentifier,
+    val id: ConfigId,
+    val forceMakeProject: Boolean,
+    val ignoreErrors: Boolean
+)
 
 // TODO: Add build id.
 /**
@@ -94,13 +95,15 @@ data class RunProjectParams(val textDocument: TextDocumentIdentifier, val id: Co
  * idea/buildProject request should be sent first with the configuration ID that was passed to the idea/runProject
  * command used to obtain the command line, then the client should run the command line only if the build succeeds.
  */
-data class RunProjectCommandLine(val isUpToDate: Boolean,
-                                 val command: String? = null,
-                                 val workingDirectory: String? = null,
-                                 val classpath: String? = null,
-                                 val environment: List<EnvironmentVariable> = listOf())
+data class RunProjectCommandLine(
+    val isUpToDate: Boolean,
+    val command: String? = null,
+    val workingDirectory: String? = null,
+    val classpath: String? = null,
+    val environment: List<EnvironmentVariable> = listOf()
+)
 
 /**
  * A single environment variable.
  */
-data class EnvironmentVariable(val name: String,  val value: String)
+data class EnvironmentVariable(val name: String, val value: String)

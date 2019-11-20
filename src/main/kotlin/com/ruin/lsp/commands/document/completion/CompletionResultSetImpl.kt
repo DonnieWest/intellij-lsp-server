@@ -1,6 +1,5 @@
 package com.ruin.lsp.commands.document.completion
 
-
 import com.intellij.codeInsight.completion.*
 import com.intellij.codeInsight.completion.impl.CamelHumpMatcher
 import com.intellij.codeInsight.completion.impl.CompletionSorterImpl
@@ -12,13 +11,16 @@ import org.eclipse.lsp4j.jsonrpc.CancelChecker
 /**
  * Created by dhleong on 11/5/14.
  */
-internal class CompletionResultSetImpl(consumer: Consumer<CompletionResult>, private val myLengthOfTextBeforePosition: Int,
-                                       prefixMatcher: PrefixMatcher,
-                                       private val contributor: CompletionContributor,
-                                       private val parameters: CompletionParameters,
-                                       private val sorter: CompletionSorter,
-                                       private val original: CompletionResultSetImpl?,
-                                       private val cancelToken: CancelChecker?) : CompletionResultSet(prefixMatcher, consumer, contributor) {
+internal class CompletionResultSetImpl(
+    consumer: Consumer<in CompletionResult>,
+    private val myLengthOfTextBeforePosition: Int,
+    prefixMatcher: PrefixMatcher,
+    private val contributor: CompletionContributor,
+    private val parameters: CompletionParameters,
+    private val sorter: CompletionSorter,
+    private val original: CompletionResultSetImpl?,
+    private val cancelToken: CancelChecker?
+) : CompletionResultSet(prefixMatcher, consumer, contributor) {
 
     override fun addElement(element: LookupElement) {
         if (!element.isValid) {
@@ -50,7 +52,6 @@ internal class CompletionResultSetImpl(consumer: Consumer<CompletionResult>, pri
             // also, use `cloneWithPrefix` so our settings are preserved
             withPrefixMatcher(prefixMatcher.cloneWithPrefix(prefix))
         } else this
-
     }
 
     override fun withRelevanceSorter(sorter: CompletionSorter): CompletionResultSet {
@@ -59,7 +60,7 @@ internal class CompletionResultSetImpl(consumer: Consumer<CompletionResult>, pri
     }
 
     override fun addLookupAdvertisement(text: String) {
-        completionService.advertisementText = text
+        completionService.setAdvertisementText(text)
     }
 
     override fun caseInsensitive(): CompletionResultSet {

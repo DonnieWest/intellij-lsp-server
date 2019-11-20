@@ -38,5 +38,4 @@ class DocumentHighlightCommandTestCase : DocumentHighlightCommandTestBase() {
             Range(Position(46, 8), Position(46, 17)),
             DocumentHighlightKind.Text)
     ))
-
 }

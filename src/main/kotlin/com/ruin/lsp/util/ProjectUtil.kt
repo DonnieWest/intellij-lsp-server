@@ -1,8 +1,5 @@
 package com.ruin.lsp.util
 
-import com.intellij.codeInsight.completion.CodeCompletionHandlerBase
-import com.intellij.codeInsight.completion.CompletionProgressIndicator
-import com.intellij.codeInsight.completion.CompletionType
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.diagnostic.Logger
@@ -35,11 +32,9 @@ import com.intellij.psi.PsiDocumentManager
 import com.intellij.psi.PsiFile
 import com.intellij.psi.PsiManager
 import com.intellij.psi.util.PsiUtilCore
-import com.intellij.util.io.URLUtil
 import com.ruin.lsp.model.MyLanguageClient
 import com.ruin.lsp.model.MyLanguageServer
 import com.ruin.lsp.values.DocumentUri
-import org.apache.commons.lang.SystemUtils
 import org.eclipse.lsp4j.MessageParams
 import org.eclipse.lsp4j.MessageType
 import org.eclipse.lsp4j.Position
@@ -47,8 +42,6 @@ import org.eclipse.lsp4j.services.LanguageClient
 import org.jdom.JDOMException
 import java.io.File
 import java.io.IOException
-import java.net.URI
-import java.net.URL
 import java.net.URLDecoder
 import java.nio.file.Paths
 import java.util.*
@@ -108,8 +101,10 @@ data class CachedProject(val project: Project, var disposable: Disposable? = nul
 
 val sProjectCache = HashMap<String, CachedProject>()
 
-internal class DumbModeNotifier(private val client: MyLanguageClient?,
-                                private val server: MyLanguageServer?) : DumbService.DumbModeListener {
+internal class DumbModeNotifier(
+    private val client: MyLanguageClient?,
+    private val server: MyLanguageServer?
+) : DumbService.DumbModeListener {
     override fun enteredDumbMode() {
         client?.notifyIndexStarted()
     }
@@ -172,7 +167,7 @@ fun getProject(projectPath: String): Project? {
         ApplicationManager.getApplication().runWriteAction {
             try {
                 val alreadyOpenProject = mgr.openProjects.find {
-                    uriToPath(it.baseDir.path)
+                    uriToPath(it.basePath.toString())
                         .equals(projectPath.replace("\\", "/"), true)
                 }
 
@@ -227,7 +222,7 @@ fun getPsiFile(project: Project, virtual: VirtualFile): PsiFile? {
 }
 
 fun getVirtualFile(project: Project, filePath: String): VirtualFile {
-    val projectDir = uriToPath(project.baseDir.toString())
+    val projectDir = uriToPath(project.basePath.toString())
     val file = File(projectDir, filePath)
     if (!file.exists()) {
         throw IllegalArgumentException("Couldn't find file $file")
@@ -341,7 +336,6 @@ fun getURIForFile(file: PsiFile) = getURIForFile(file.virtualFile)
 
 fun getURIForFile(file: File) = normalizeUri(file.toURI().toURL().toString())
 
-
 /**
  * Converts URIs to have forward slashes and ensures the protocol has three slashes.
  *
@@ -388,8 +382,7 @@ fun resolveJarUri(uri: DocumentUri, tempDirectory: DocumentUri): DocumentUri? {
     val pair = jarExtractedFileToJarpathFile(uri, tempDirectory) ?: return null
     val (internalSourceFile, jarpathFileUri) = pair
 
-    val realJarPath = uriToPath(jarpathFileUri)
-        .let { File(it) }.readText()
+    val realJarPath = File(uriToPath(jarpathFileUri)).readText()
 
     return getJarEntryURI(realJarPath, internalSourceFile)
 }
@@ -414,7 +407,6 @@ fun getJarEntryURI(jarUri: DocumentUri, internalSourceFile: String): String? {
     val filePath = StringUtil.replace(realJarFile.toString().replace("\\", "/"), "!", "%21")
     return JAR_PROTOCOL + "://" + filePath + JAR_SEPARATOR + StringUtil.trimLeading(internalSourceFile, '/')
 }
-
 
 private fun hideProjectFrame(project: Project?) {
     val mgr = WindowManager.getInstance()

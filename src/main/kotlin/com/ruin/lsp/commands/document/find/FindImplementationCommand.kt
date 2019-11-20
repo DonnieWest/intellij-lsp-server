@@ -14,10 +14,12 @@ import com.ruin.lsp.util.getDocument
 import com.ruin.lsp.util.toOffset
 import com.ruin.lsp.util.withEditor
 import org.eclipse.lsp4j.Location
+import org.eclipse.lsp4j.LocationLink
 import org.eclipse.lsp4j.Position
+import org.eclipse.lsp4j.jsonrpc.messages.Either
 
-class FindImplementationCommand(val position: Position) : DocumentCommand<MutableList<Location>> {
-    override fun execute(ctx: ExecutionContext): MutableList<Location> {
+class FindImplementationCommand(val position: Position) : DocumentCommand<Either<List<Location>, List<LocationLink>>> {
+    override fun execute(ctx: ExecutionContext): Either<List<Location>, List<LocationLink>> {
         val doc = getDocument(ctx.file)
             ?: throw LanguageServerException("No document found.")
 
@@ -29,7 +31,7 @@ class FindImplementationCommand(val position: Position) : DocumentCommand<Mutabl
         }
         val implementations = ref.get()
 
-        return implementations?.map{ it.sourceLocationIfPossible() }?.toMutableList() ?: mutableListOf()
+        return Either.forLeft(implementations?.map { it.sourceLocationIfPossible() }?.toList() ?: listOf())
     }
 }
 

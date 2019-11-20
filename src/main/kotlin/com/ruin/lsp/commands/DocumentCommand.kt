@@ -12,14 +12,16 @@ import org.eclipse.lsp4j.services.LanguageServer
 /**
  * A command that is run on a specific source file in a project.
  */
-interface DocumentCommand<out T: Any?>: Command<T, ExecutionContext>
+interface DocumentCommand<out T : Any?> : Command<T, ExecutionContext>
 
-data class ExecutionContext(val project: Project,
-                            val file: PsiFile,
-                            val client: LanguageClient? = null,
-                            val server: LanguageServer? = null,
-                            val profiler: Profiler? = null,
-                            val cancelToken: CancelChecker? = null) {
+data class ExecutionContext(
+    val project: Project,
+    val file: PsiFile,
+    val client: LanguageClient? = null,
+    val server: LanguageServer? = null,
+    val profiler: Profiler? = null,
+    val cancelToken: CancelChecker? = null
+) {
     val uri: DocumentUri
         get() = getURIForFile(file)
 }

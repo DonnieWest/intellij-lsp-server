@@ -38,7 +38,6 @@ abstract class BaseTestCase : LightPlatformCodeInsightFixtureTestCase() {
     /** Which example project does this test reference?  */
     protected abstract val projectName: String
 
-
     protected fun getProjectPath() = getProjectPath(projectName)
     protected fun getProjectIml() = getProjectIml(projectName)
 
@@ -47,7 +46,7 @@ abstract class BaseTestCase : LightPlatformCodeInsightFixtureTestCase() {
         return ensureProject(path)
     }
 
-    protected fun fixtureProject() = myFixture.project
+    protected fun fixtureProject(): Project = myFixture.project
 
     override fun tearDown() {
         ProjectUtil.closeAndDispose(project)
@@ -73,6 +72,6 @@ fun uriForPath(projectName: String, filePath: String): DocumentUri {
     return getURIForFile(file)
 }
 
-fun forKotlin(path: String) =
+fun forKotlin(path: String): String =
     File(path.replace("javaproject", "kotlinproject"))
     .withReplacedExtensionOrNull("java", "kt")!!.path

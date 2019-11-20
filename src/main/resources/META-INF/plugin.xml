@@ -43,7 +43,6 @@
 
     <application-components>
         <component>
-            <interface-class>com.ruin.lsp.model.LanguageServerService</interface-class>
             <implementation-class>com.ruin.lsp.model.LanguageServerService</implementation-class>
         </component>
         <component>

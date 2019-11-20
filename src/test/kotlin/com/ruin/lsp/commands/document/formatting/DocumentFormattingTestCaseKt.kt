@@ -5,7 +5,7 @@ import org.eclipse.lsp4j.FormattingOptions
 import org.jetbrains.kotlin.idea.KotlinFileType
 
 class DocumentFormattingTestCaseKt : DocumentFormattingTestBase() {
-    override val fileType = KotlinFileType.INSTANCE
+    override val fileType: KotlinFileType = KotlinFileType.INSTANCE
 
     val TESTCASE = """
         fun      main(args  : Array<  String   >) {

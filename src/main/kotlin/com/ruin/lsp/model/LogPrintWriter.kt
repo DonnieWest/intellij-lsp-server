@@ -1,9 +1,9 @@
 package com.ruin.lsp.model
 
 import com.intellij.openapi.diagnostic.Logger
-import org.apache.log4j.Level
 import java.io.PrintWriter
 import java.io.StringWriter
+import org.apache.log4j.Level
 
 class LogPrintWriter(private val log: Logger, private val severity: Level, private val writer: StringWriter = StringWriter()) : PrintWriter(writer) {
     override fun flush() {
@@ -19,5 +19,3 @@ class LogPrintWriter(private val log: Logger, private val severity: Level, priva
         super.flush()
     }
 }
-
-

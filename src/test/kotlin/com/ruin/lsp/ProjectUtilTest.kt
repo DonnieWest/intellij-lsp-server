@@ -3,8 +3,6 @@ package com.ruin.lsp
 import com.ruin.lsp.util.*
 import com.ruin.lsp.values.DocumentUri
 import java.io.File
-import kotlin.test.assertEquals
-
 
 class ProjectUtilTest : BaseTestCase() {
 
@@ -12,13 +10,13 @@ class ProjectUtilTest : BaseTestCase() {
         get() = TESTABLE_PROJECT
 
     fun `test finds project`() {
-        val project = com.ruin.lsp.util.getProject(getProjectPath())
+        val project = getProject(getProjectPath())
         assertNotNull(project)
         assertEquals(TESTABLE_PROJECT, project!!.name)
     }
 
     fun `test doesn't find nonexistent project`() {
-        val project = com.ruin.lsp.util.getProject("blah")
+        val project = getProject("blah")
         assertNull(project)
     }
 
@@ -73,7 +71,6 @@ class ProjectUtilTest : BaseTestCase() {
         }
     }
 
-
     fun `test converts file extracted from jar to internal source dir`() {
         val tempDir = "file:///tmp"
         val expected: Pair<String, DocumentUri> = Pair("org/ruin/stuff/MyClass.class", "file:///tmp/lsp-intellij/my-library/jarpath")
@@ -87,7 +84,6 @@ class ProjectUtilTest : BaseTestCase() {
             assertEquals(expected, it)
         }
     }
-
 
     fun `test converts file extracted from jar to internal source dir on windows`() {
         val tempDir = "file:///E:/temp"
@@ -103,4 +99,3 @@ class ProjectUtilTest : BaseTestCase() {
         }
     }
 }
-

@@ -12,10 +12,10 @@ import com.ruin.lsp.commands.DocumentCommand
 import com.ruin.lsp.commands.ExecutionContext
 import com.ruin.lsp.util.findTargetElement
 import com.ruin.lsp.util.withEditor
+import java.util.*
 import org.eclipse.lsp4j.Location
 import org.eclipse.lsp4j.Position
 import org.eclipse.lsp4j.jsonrpc.CancelChecker
-import java.util.*
 
 class FindUsagesCommand(val position: Position) : DocumentCommand<MutableList<Location>> {
     override fun execute(ctx: ExecutionContext): MutableList<Location> {
@@ -55,52 +55,64 @@ fun findUsages(editor: Editor, cancelToken: CancelChecker?): List<Usage> {
     return rawResults
 }
 
-internal class UsageCollectingViewManager(val project: Project,
-                                          private val results: MutableList<Usage>,
-                                          private val cancelToken: CancelChecker?)
-    : UsageViewManager(), Processor<Usage> {
-    override fun showUsages(searchedFor: Array<out UsageTarget>,
-                            foundUsages: Array<out Usage>,
-                            presentation: UsageViewPresentation,
-                            factory: Factory<UsageSearcher>?): UsageView {
+internal class UsageCollectingViewManager(
+    val project: Project,
+    private val results: MutableList<Usage>,
+    private val cancelToken: CancelChecker?
+) :
+    UsageViewManager(), Processor<Usage> {
+    override fun showUsages(
+        searchedFor: Array<out UsageTarget>,
+        foundUsages: Array<out Usage>,
+        presentation: UsageViewPresentation,
+        factory: Factory<UsageSearcher>?
+    ): UsageView {
         return showUsages(searchedFor, foundUsages, presentation)
     }
 
-    override fun showUsages(searchedFor: Array<out UsageTarget>,
-                            foundUsages: Array<out Usage>,
-                            presentation: UsageViewPresentation): UsageView {
+    override fun showUsages(
+        searchedFor: Array<out UsageTarget>,
+        foundUsages: Array<out Usage>,
+        presentation: UsageViewPresentation
+    ): UsageView {
         for (usage in foundUsages) {
             process(usage)
         }
 
-        return UsageViewManager.getInstance(project)
+        return getInstance(project)
             .createUsageView(UsageTarget.EMPTY_ARRAY, Usage.EMPTY_ARRAY, presentation, null)
     }
 
     override fun getSelectedUsageView() = null
 
-    override fun searchAndShowUsages(searchFor: Array<out UsageTarget>,
-                                     searcherFactory: Factory<UsageSearcher>,
-                                     showPanelIfOnlyOneUsage: Boolean,
-                                     showNotFoundMessage: Boolean,
-                                     presentation: UsageViewPresentation,
-                                     listener: UsageViewStateListener?): UsageView? {
+    override fun searchAndShowUsages(
+        searchFor: Array<out UsageTarget>,
+        searcherFactory: Factory<UsageSearcher>,
+        showPanelIfOnlyOneUsage: Boolean,
+        showNotFoundMessage: Boolean,
+        presentation: UsageViewPresentation,
+        listener: UsageViewStateListener?
+    ): UsageView? {
         searcherFactory.create().generate(this)
         return null
     }
 
-    override fun searchAndShowUsages(searchFor: Array<out UsageTarget>,
-                                     searcherFactory: Factory<UsageSearcher>,
-                                     processPresentation: FindUsagesProcessPresentation,
-                                     presentation: UsageViewPresentation,
-                                     listener: UsageViewStateListener?) {
+    override fun searchAndShowUsages(
+        searchFor: Array<out UsageTarget>,
+        searcherFactory: Factory<UsageSearcher>,
+        processPresentation: FindUsagesProcessPresentation,
+        presentation: UsageViewPresentation,
+        listener: UsageViewStateListener?
+    ) {
         searcherFactory.create().generate(this)
     }
 
-    override fun createUsageView(targets: Array<out UsageTarget>,
-                                 usages: Array<out Usage>,
-                                 presentation: UsageViewPresentation,
-                                 usageSearcherFactory: Factory<UsageSearcher>?): UsageView {
+    override fun createUsageView(
+        targets: Array<out UsageTarget>,
+        usages: Array<out Usage>,
+        presentation: UsageViewPresentation,
+        usageSearcherFactory: Factory<UsageSearcher>?
+    ): UsageView {
         return showUsages(targets, usages, presentation)
     }
 

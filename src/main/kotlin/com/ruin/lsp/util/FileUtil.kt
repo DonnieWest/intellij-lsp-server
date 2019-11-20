@@ -11,7 +11,6 @@ import com.intellij.psi.PsiDocumentManager
 import com.intellij.psi.PsiFile
 import com.intellij.reference.SoftReference
 
-
 private val LOG = Logger.getInstance("#com.ruin.lsp.util.FileUtil")
 private val FILE_COPY_KEY = Key.create<SoftReference<Pair<PsiFile, Document>>>("CompletionFileCopy")
 
@@ -85,7 +84,6 @@ private fun fileInfo(file: PsiFile): String {
         " in " + file.viewProvider + ", languages=" + file.viewProvider.languages +
         ", physical=" + file.isPhysical
 }
-
 
 fun OffsetsInFile.toFileCopy(copyFile: PsiFile): OffsetsInFile {
     assertCorrectOriginalFile("Given ", file, copyFile)

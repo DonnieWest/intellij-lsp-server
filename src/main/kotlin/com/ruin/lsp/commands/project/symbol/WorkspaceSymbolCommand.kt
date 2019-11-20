@@ -114,10 +114,10 @@ private fun getSymbols(project: Project, pattern: String, max: Int, includeLibs:
                 element = o.targetElement
             }
             val virtualFile = SearchEverywhereClassifier.EP_Manager.getVirtualFile(o)
-            //some elements are non-physical like DB columns
+            // some elements are non-physical like DB columns
             val isElementWithoutFile = element != null && element.containingFile == null
             val isFileInScope = virtualFile != null && (includeLibs || scope.accept(virtualFile))
-            val isSpecialElement = element == null && virtualFile == null //all Rider elements don't have any psi elements within
+            val isSpecialElement = element == null && virtualFile == null // all Rider elements don't have any psi elements within
             if (isElementWithoutFile || isFileInScope || isSpecialElement) {
                 symbols.add(o)
             }
@@ -128,10 +128,9 @@ private fun getSymbols(project: Project, pattern: String, max: Int, includeLibs:
     return symbols
 }
 
-class NonInteractiveChooseByName(project: Project, model: ChooseByNameModel, context: PsiElement?)
-    : ChooseByNameBase(project, model, ChooseByNameModelEx.getItemProvider(model, context), null) {
+class NonInteractiveChooseByName(project: Project, model: ChooseByNameModel, context: PsiElement?) :
+    ChooseByNameBase(project, model, ChooseByNameModelEx.getItemProvider(model, context), null) {
     override fun close(isOk: Boolean) {
-
     }
 
     override fun isShowListForEmptyPattern(): Boolean {

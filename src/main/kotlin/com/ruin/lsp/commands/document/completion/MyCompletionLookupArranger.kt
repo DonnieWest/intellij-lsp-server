@@ -2,13 +2,11 @@ package com.ruin.lsp.commands.document.completion
 
 import com.intellij.codeInsight.completion.*
 import com.intellij.codeInsight.completion.impl.CompletionSorterImpl
-import com.intellij.codeInsight.daemon.impl.DaemonProgressIndicator
 import com.intellij.codeInsight.lookup.*
 import com.intellij.codeInsight.lookup.impl.LookupImpl
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.application.ReadAction
 import com.intellij.openapi.diagnostic.Logger
-import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.util.Condition
 import com.intellij.openapi.util.Key
 import com.intellij.openapi.util.Pair
@@ -18,14 +16,7 @@ import com.intellij.util.containers.ContainerUtil
 import com.intellij.util.containers.MultiMap
 import java.util.ArrayList
 import java.util.LinkedHashSet
-import kotlin.Any
-import kotlin.Array
-import kotlin.Boolean
-import kotlin.Comparable
 import kotlin.Comparator
-import kotlin.Exception
-import kotlin.Int
-import kotlin.String
 
 /**
  * Mostly a copy of CompletionLookupArranger with the important parts for sorting completion items gutted out.
@@ -96,8 +87,8 @@ class MyCompletionLookupArranger(val params: CompletionParameters, val location:
         else
             fillModelByRelevance(lookupImpl, ContainerUtil.newIdentityTroveSet<LookupElement>(items), sortedByRelevance, relevantSelection)
 
-        //val toSelect = getItemToSelect(lookupImpl, listModel, onExplicitAction, relevantSelection)
-        //LOG.assertTrue(toSelect >= 0)
+        // val toSelect = getItemToSelect(lookupImpl, listModel, onExplicitAction, relevantSelection)
+        // LOG.assertTrue(toSelect >= 0)
         val toSelect = 0
 
         return Pair(listModel.toMutableList(), toSelect)
@@ -106,7 +97,6 @@ class MyCompletionLookupArranger(val params: CompletionParameters, val location:
     override fun createEmptyCopy(): LookupArranger {
         return MyCompletionLookupArranger(params, location)
     }
-
 
     private fun groupItemsBySorter(source: Iterable<LookupElement>): MultiMap<CompletionSorterImpl, LookupElement> {
         val inputBySorter = MultiMap.createLinked<CompletionSorterImpl, LookupElement>()
@@ -121,8 +111,8 @@ class MyCompletionLookupArranger(val params: CompletionParameters, val location:
     }
 
     private fun sortByPresentation(source: Iterable<LookupElement>): List<LookupElement> {
-        val startMatches = ContainerUtil.newArrayList<LookupElement>()
-        val middleMatches = ContainerUtil.newArrayList<LookupElement>()
+        val startMatches = arrayListOf<LookupElement>()
+        val middleMatches = arrayListOf<LookupElement>()
         for (element in source) {
             (if (itemMatcher(element).isStartMatch(element)) startMatches else middleMatches).add(element)
         }
@@ -132,10 +122,12 @@ class MyCompletionLookupArranger(val params: CompletionParameters, val location:
         return startMatches
     }
 
-    private fun fillModelByRelevance(lookup: LookupImpl,
-                                     items: Set<LookupElement>,
-                                     sortedElements: Iterable<LookupElement>,
-                                     relevantSelection: LookupElement?): List<LookupElement> {
+    private fun fillModelByRelevance(
+        lookup: LookupImpl,
+        items: Set<LookupElement>,
+        sortedElements: Iterable<LookupElement>,
+        relevantSelection: LookupElement?
+    ): List<LookupElement> {
         val byRelevance = sortedElements.iterator()
 
         val model = LinkedHashSet<LookupElement>()
@@ -143,7 +135,7 @@ class MyCompletionLookupArranger(val params: CompletionParameters, val location:
         addPrefixItems(model)
         addFrozenItems(items, model)
         if (model.size < MAX_PREFERRED_COUNT) {
-            addSomeItems(model, byRelevance, Condition { lastAdded -> model.size >= MAX_PREFERRED_COUNT })
+            addSomeItems(model, byRelevance, Condition { model.size >= MAX_PREFERRED_COUNT })
         }
 
         freezeTopItems(lookup, model)
@@ -156,10 +148,10 @@ class MyCompletionLookupArranger(val params: CompletionParameters, val location:
     }
 
     private fun sortByRelevance(inputBySorter: MultiMap<CompletionSorterImpl, LookupElement>): Iterable<LookupElement> {
-        val byClassifier = ContainerUtil.newArrayList<Iterable<LookupElement>>()
+        val byClassifier = arrayListOf<Iterable<LookupElement>>()
         for (sorter in myClassifiers.keys) {
             val context = createContext()
-            byClassifier.add(myClassifiers.get(sorter)!!.classify(inputBySorter.get(sorter as CompletionSorterImpl), context))
+            byClassifier.add(myClassifiers[sorter]!!.classify(inputBySorter.get(sorter as CompletionSorterImpl), context))
         }
 
         val result: Iterable<LookupElement> = ContainerUtil.concat<LookupElement>(*byClassifier.toTypedArray<Iterable<LookupElement>>())
@@ -197,11 +189,9 @@ class MyCompletionLookupArranger(val params: CompletionParameters, val location:
         return context
     }
 
-
     private fun obtainSorter(element: LookupElement): CompletionSorterImpl {
         return element.getUserData(mySorterKey)!!
     }
-
 
     private fun ensureEverythingVisibleAdded(lookup: LookupImpl, model: LinkedHashSet<LookupElement>, byRelevance: Iterator<LookupElement>) {
         val list = lookup.list
@@ -210,9 +200,12 @@ class MyCompletionLookupArranger(val params: CompletionParameters, val location:
         addSomeItems(model, byRelevance, Condition { !testMode && model.size >= limit })
     }
 
-    private fun ensureItemAdded(items: Set<LookupElement>,
-                                model: LinkedHashSet<LookupElement>,
-                                byRelevance: Iterator<LookupElement>, item: LookupElement?) {
+    private fun ensureItemAdded(
+        items: Set<LookupElement>,
+        model: LinkedHashSet<LookupElement>,
+        byRelevance: Iterator<LookupElement>,
+        item: LookupElement?
+    ) {
         if (item != null && items.contains(item) && !model.contains(item)) {
             addSomeItems(model, byRelevance, Condition { lastAdded -> lastAdded === item })
         }
@@ -229,7 +222,7 @@ class MyCompletionLookupArranger(val params: CompletionParameters, val location:
         val iterator = myFrozenItems.iterator()
         while (iterator.hasNext()) {
             val element = iterator.next()
-            if (!element.isValid() || !items.contains(element)) {
+            if (!element.isValid || !items.contains(element)) {
                 iterator.remove()
             }
         }
@@ -252,7 +245,7 @@ class MyCompletionLookupArranger(val params: CompletionParameters, val location:
     }
 }
 
-internal data class PresentationInvariant(val itemText: String?, val tail: String?, val type: String?): Comparable<PresentationInvariant> {
+internal data class PresentationInvariant(val itemText: String?, val tail: String?, val type: String?) : Comparable<PresentationInvariant> {
     override fun compareTo(other: PresentationInvariant): Int {
         var result = StringUtil.naturalCompare(itemText, other.itemText)
         if (result != 0) return result
@@ -265,10 +258,9 @@ internal data class PresentationInvariant(val itemText: String?, val tail: Strin
 
         return StringUtil.naturalCompare(type ?: "", other.type ?: "")
     }
-
 }
 
-private class EmptyClassifier constructor() : Classifier<LookupElement>(null, "empty") {
+private class EmptyClassifier : Classifier<LookupElement>(null, "empty") {
 
     override fun getSortingWeights(items: Iterable<LookupElement>, context: ProcessingContext): List<Pair<LookupElement, Any>> {
         return emptyList()
@@ -277,5 +269,4 @@ private class EmptyClassifier constructor() : Classifier<LookupElement>(null, "e
     override fun classify(source: Iterable<LookupElement>, context: ProcessingContext): Iterable<LookupElement> {
         return source
     }
-
 }

@@ -1,13 +1,8 @@
 package com.ruin.lsp.commands.document.lens
 
-import com.ruin.lsp.model.invokeCommandAndWait
 import com.intellij.testFramework.fixtures.LightCodeInsightFixtureTestCase
-import com.ruin.lsp.util.getDocument
+import com.ruin.lsp.model.invokeCommandAndWait
 import org.eclipse.lsp4j.CodeLens
-import com.intellij.codeInsight.daemon.GutterMark
-
-
-
 
 abstract class CodeLensCommandTestBase : LightCodeInsightFixtureTestCase() {
     protected fun doTest(name: String, code: String, expected: List<CodeLens>) {
