@@ -19,7 +19,8 @@ internal class CompletionResultSetImpl(
     private val parameters: CompletionParameters,
     private val sorter: CompletionSorter,
     private val original: CompletionResultSetImpl?,
-    private val cancelToken: CancelChecker?
+    private val cancelToken: CancelChecker?,
+    private val contributors: List<CompletionContributor>
 ) : CompletionResultSet(prefixMatcher, consumer, contributor) {
 
     override fun addElement(element: LookupElement) {
@@ -35,7 +36,7 @@ internal class CompletionResultSetImpl(
     }
 
     override fun withPrefixMatcher(matcher: PrefixMatcher): CompletionResultSet {
-        return CompletionResultSetImpl(consumer, myLengthOfTextBeforePosition, matcher, contributor, parameters, sorter, this, cancelToken)
+        return CompletionResultSetImpl(consumer, myLengthOfTextBeforePosition, matcher, contributor, parameters, sorter, this, cancelToken, contributors)
     }
 
     override fun stopHere() {
@@ -56,7 +57,7 @@ internal class CompletionResultSetImpl(
 
     override fun withRelevanceSorter(sorter: CompletionSorter): CompletionResultSet {
         return CompletionResultSetImpl(consumer, myLengthOfTextBeforePosition, prefixMatcher,
-            contributor, parameters, sorter as CompletionSorterImpl, this, cancelToken)
+            contributor, parameters, sorter as CompletionSorterImpl, this, cancelToken, contributors)
     }
 
     override fun addLookupAdvertisement(text: String) {
@@ -87,7 +88,7 @@ internal class CompletionResultSetImpl(
         if (stop) {
             stopHere()
         }
-        getVariantsFromContributors(parameters, prefixMatcher.prefix, contributor, cancelToken, consumer)
+        getVariantsFromContributors(parameters, contributors, sorter, prefixMatcher, contributor, cancelToken, consumer)
     }
 
     companion object {
