@@ -35,6 +35,7 @@ import org.jetbrains.kotlin.types.SimpleType
 abstract class CompletionDecorator<out T : Any>(val lookup: LookupElement, private val elt: T) {
     val completionItem: CompletionItem
         get() = CompletionItem().apply {
+            detail = formatLabel()
             label = formatLabel()
             kind = kind
             insertText = formatInsertText()
