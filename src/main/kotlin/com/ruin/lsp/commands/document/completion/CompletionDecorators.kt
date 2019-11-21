@@ -37,7 +37,7 @@ abstract class CompletionDecorator<out T : Any>(val lookup: LookupElement, priva
         get() = CompletionItem().apply {
             detail = formatLabel()
             label = formatLabel()
-            kind = kind
+            kind = calculateKind()
             insertText = formatInsertText()
             documentation = Either.forLeft(formatDoc())
             insertTextFormat = myInsertTextFormat
@@ -46,7 +46,10 @@ abstract class CompletionDecorator<out T : Any>(val lookup: LookupElement, priva
     var clientSupportsSnippets = false
     private val myInsertTextFormat: InsertTextFormat
         get() = if (clientSupportsSnippets) InsertTextFormat.Snippet else InsertTextFormat.PlainText
-    abstract val kind: CompletionItemKind
+//    abstract val kind: CompletionItemKind
+    protected open fun calculateKind(): CompletionItemKind {
+        return CompletionItemKind.Variable
+    }
 
     protected open fun formatInsertText(): String {
         if (elt is PsiNamedElement) {
@@ -223,7 +226,9 @@ abstract class CompletionDecorator<out T : Any>(val lookup: LookupElement, priva
 
 class MethodCompletionDecorator(lookup: LookupElement, val method: PsiMethod) :
     CompletionDecorator<PsiMethod>(lookup, method) {
-    override val kind = CompletionItemKind.Method
+    override fun calculateKind(): CompletionItemKind {
+       return CompletionItemKind.Method
+    }
 
     override fun formatInsertText() =
         super.formatInsertText() + buildMethodParams(method, clientSupportsSnippets)
@@ -234,7 +239,9 @@ class MethodCompletionDecorator(lookup: LookupElement, val method: PsiMethod) :
 
 class ClassCompletionDecorator(lookup: LookupElement, private val klass: PsiClass) :
     CompletionDecorator<PsiClass>(lookup, klass) {
-    override val kind = CompletionItemKind.Class
+    override fun calculateKind(): CompletionItemKind {
+        return CompletionItemKind.Class
+    }
 
     override fun formatLabel() =
         klass.qualifiedName ?: klass.toString()
@@ -242,7 +249,9 @@ class ClassCompletionDecorator(lookup: LookupElement, private val klass: PsiClas
 
 class FieldCompletionDecorator(lookup: LookupElement, private val field: PsiField) :
     CompletionDecorator<PsiField>(lookup, field) {
-    override val kind = CompletionItemKind.Field
+    override fun calculateKind(): CompletionItemKind {
+        return CompletionItemKind.Field
+    }
 
     override fun formatLabel() =
         "${field.name} : ${field.type.presentableText}"
@@ -250,7 +259,9 @@ class FieldCompletionDecorator(lookup: LookupElement, private val field: PsiFiel
 
 class VariableCompletionDecorator(lookup: LookupElement, val variable: PsiVariable) :
     CompletionDecorator<PsiVariable>(lookup, variable) {
-    override val kind = CompletionItemKind.Variable
+    override fun calculateKind(): CompletionItemKind {
+        return CompletionItemKind.Variable
+    }
 
     private val type = variable.type.presentableText
 
@@ -259,7 +270,9 @@ class VariableCompletionDecorator(lookup: LookupElement, val variable: PsiVariab
 
 class PackageCompletionDecorator(lookup: LookupElement, private val pack: PsiPackage) :
     CompletionDecorator<PsiPackage>(lookup, pack) {
-    override val kind = CompletionItemKind.Module
+    override fun calculateKind(): CompletionItemKind {
+        return CompletionItemKind.Module
+    }
 
     override fun formatLabel() = pack.qualifiedName
 }
@@ -268,21 +281,27 @@ class PackageCompletionDecorator(lookup: LookupElement, private val pack: PsiPac
 
 class KtClassCompletionDecorator(lookup: LookupElement, val name: Name, val fqName: FqName?) :
     CompletionDecorator<Name>(lookup, name) {
-    override val kind = CompletionItemKind.Class
+    override fun calculateKind(): CompletionItemKind {
+        return CompletionItemKind.Class
+    }
 
     override fun formatLabel() = fqName?.asString() ?: name.asString()
 }
 
 class KtPropertyCompletionDecorator(lookup: LookupElement, val property: KtProperty, val type: KotlinType) :
     CompletionDecorator<KtProperty>(lookup, property) {
-    override val kind = if (property.isMember) CompletionItemKind.Field else CompletionItemKind.Variable
+    override fun calculateKind(): CompletionItemKind {
+        return if (property.isMember) CompletionItemKind.Field else CompletionItemKind.Variable
+    }
 
     override fun formatLabel() = "${property.name} : $type"
 }
 
 class KtVariableCompletionDecorator(lookup: LookupElement, val name: Name, val type: KotlinType, val isMember: Boolean) :
     CompletionDecorator<Name>(lookup, name) {
-    override val kind = if (isMember) CompletionItemKind.Field else CompletionItemKind.Variable
+    override fun calculateKind(): CompletionItemKind {
+       return if (isMember) CompletionItemKind.Field else CompletionItemKind.Variable
+    }
 
     override fun formatLabel() = "$name : $type"
 }
@@ -295,7 +314,9 @@ class KtFunctionCompletionDecorator(
     val hasSynthesizedParameterNames: Boolean
 ) :
     CompletionDecorator<Name>(lookup, name) {
-    override val kind = CompletionItemKind.Function
+    override fun calculateKind(): CompletionItemKind {
+        return CompletionItemKind.Function
+    }
     private val parametersRenderer = BasicLookupElementFactory.SHORT_NAMES_RENDERER
 
     private fun argsString(args: List<ValueParameterDescriptor>) =
@@ -336,14 +357,18 @@ class KtFunctionCompletionDecorator(
 
 class KtTypeAliasCompletionDecorator(lookup: LookupElement, val name: Name, val type: SimpleType) :
     CompletionDecorator<Name>(lookup, name) {
-    override val kind = CompletionItemKind.Class
+    override fun calculateKind(): CompletionItemKind {
+        return CompletionItemKind.Class
+    }
 
     override fun formatLabel() = "$name : $type"
 }
 
 class KtValueParameterCompletionDecorator(lookup: LookupElement, val valueParameter: KtParameter) :
     CompletionDecorator<KtParameter>(lookup, valueParameter) {
-    override val kind = CompletionItemKind.Field
+    override fun calculateKind(): CompletionItemKind {
+        return CompletionItemKind.Field
+    }
     private val type = valueParameter.typeReference?.typeElement?.text ?: "<unknown>"
 
     override fun formatLabel() = "${valueParameter.name} : $type"
@@ -351,15 +376,18 @@ class KtValueParameterCompletionDecorator(lookup: LookupElement, val valueParame
 
 class KtObjectCompletionDecorator(lookup: LookupElement, val obj: KtObjectDeclaration) :
     CompletionDecorator<KtObjectDeclaration>(lookup, obj) {
-    override val kind = CompletionItemKind.Class
+    override fun calculateKind(): CompletionItemKind {
+        return CompletionItemKind.Class
+    }
 
     override fun formatLabel() = "${obj.name} : object"
 }
 
 class KtSyntheticPropertyCompletionDecorator(lookup: LookupElement, val method: PsiMethod, val realName: Name) :
     CompletionDecorator<PsiMethod>(lookup, method) {
-    override val kind: CompletionItemKind
-        get() = CompletionItemKind.Property
+    override fun calculateKind(): CompletionItemKind {
+        return CompletionItemKind.Property
+    }
 
     override fun formatLabel() = "$realName (from ${method.name}${buildParamsList(method)}) : ${getTypeName(method.returnType)}"
 
@@ -368,8 +396,9 @@ class KtSyntheticPropertyCompletionDecorator(lookup: LookupElement, val method: 
 
 class KtKeywordCompletionDecorator(lookup: LookupElement) :
     CompletionDecorator<String>(lookup, lookup.lookupString) {
-    override val kind: CompletionItemKind
-        get() = CompletionItemKind.Keyword
+    override fun calculateKind(): CompletionItemKind {
+        return CompletionItemKind.Keyword
+    }
 
     override fun formatLabel() = lookup.lookupString
 
