@@ -71,7 +71,6 @@ class CompletionCommand(
                 this.data = CompletionResolveIndex(completionId, i)
             }
         }
-
         completionCache.cacheCompletion(ctx.file, sortedLookupElements)
 
         return Either.forRight(CompletionList(false, result.toMutableList()))

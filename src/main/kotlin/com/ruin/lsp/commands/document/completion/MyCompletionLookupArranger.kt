@@ -81,14 +81,8 @@ class MyCompletionLookupArranger(val params: CompletionParameters, val location:
 
         val relevantSelection = findMostRelevantItem(sortedByRelevance)
         val lookupImpl = lookup as LookupImpl
-        val isAlphaSorted = false
-        val listModel = if (isAlphaSorted)
-            sortByPresentation(items)
-        else
-            fillModelByRelevance(lookupImpl, ContainerUtil.newIdentityTroveSet<LookupElement>(items), sortedByRelevance, relevantSelection)
+        val listModel = fillModelByRelevance(lookupImpl, ContainerUtil.newIdentityTroveSet<LookupElement>(items), sortedByRelevance, relevantSelection)
 
-        // val toSelect = getItemToSelect(lookupImpl, listModel, onExplicitAction, relevantSelection)
-        // LOG.assertTrue(toSelect >= 0)
         val toSelect = 0
 
         return Pair(listModel.toMutableList(), toSelect)
@@ -154,7 +148,7 @@ class MyCompletionLookupArranger(val params: CompletionParameters, val location:
             byClassifier.add(myClassifiers[sorter]!!.classify(inputBySorter.get(sorter as CompletionSorterImpl), context))
         }
 
-        val result: Iterable<LookupElement> = ContainerUtil.concat<LookupElement>(*byClassifier.toTypedArray<Iterable<LookupElement>>())
+        val result: Iterable<LookupElement> = ContainerUtil.concat<LookupElement>(*byClassifier.toTypedArray())
         return myFinalSorter.sort(result, params)
     }
 
@@ -196,7 +190,7 @@ class MyCompletionLookupArranger(val params: CompletionParameters, val location:
     private fun ensureEverythingVisibleAdded(lookup: LookupImpl, model: LinkedHashSet<LookupElement>, byRelevance: Iterator<LookupElement>) {
         val list = lookup.list
         val testMode = ApplicationManager.getApplication().isUnitTestMode
-        val limit = Math.max(list.lastVisibleIndex, model.size) + maxLookupListHeight * 3
+        val limit = list.lastVisibleIndex.coerceAtLeast(model.size) + maxLookupListHeight * 3
         addSomeItems(model, byRelevance, Condition { !testMode && model.size >= limit })
     }
 
@@ -250,7 +244,7 @@ internal data class PresentationInvariant(val itemText: String?, val tail: Strin
         var result = StringUtil.naturalCompare(itemText, other.itemText)
         if (result != 0) return result
 
-        result = Integer.compare(tail?.length ?: 0, other.tail?.length ?: 0)
+        result = (tail?.length ?: 0).compareTo(other.tail?.length ?: 0)
         if (result != 0) return result
 
         result = StringUtil.naturalCompare(tail ?: "", other.tail ?: "")

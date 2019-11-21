@@ -47,7 +47,7 @@ internal class CompletionResultSetImpl(
     }
 
     override fun withPrefixMatcher(prefix: String): CompletionResultSet {
-        return if (!prefix.isEmpty()) {
+        return if (prefix.isNotEmpty()) {
             // don't erase our prefix!
             // also, use `cloneWithPrefix` so our settings are preserved
             withPrefixMatcher(prefixMatcher.cloneWithPrefix(prefix))
