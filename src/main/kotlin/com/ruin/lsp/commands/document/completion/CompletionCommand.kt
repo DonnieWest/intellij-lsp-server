@@ -9,19 +9,19 @@ import com.ruin.lsp.commands.ExecutionContext
 import com.ruin.lsp.model.CompletionResolveIndex
 import com.ruin.lsp.model.PreviousCompletionCacheService
 import com.ruin.lsp.util.withEditor
+import java.util.*
 import org.eclipse.lsp4j.CompletionItem
 import org.eclipse.lsp4j.CompletionList
 import org.eclipse.lsp4j.Position
 import org.eclipse.lsp4j.jsonrpc.CancelChecker
 import org.eclipse.lsp4j.jsonrpc.messages.Either
-import java.util.*
 
 class CompletionCommand(
     val position: Position,
     private val snippetSupport: Boolean
 ) : DocumentCommand<Either<MutableList<CompletionItem>, CompletionList>> {
     override fun execute(ctx: ExecutionContext): Either<MutableList<CompletionItem>, CompletionList> {
-        var sortedLookupElements: MutableList<LookupElement> = mutableListOf()
+        var lookupElements: Array<LookupElement> = arrayOf()
 
         val completionCache = PreviousCompletionCacheService.getInstance()
         val completionId = completionCache.incrementId()
@@ -33,19 +33,17 @@ class CompletionCommand(
             val sorter = CompletionService.getCompletionService().defaultSorter(params, matcher)
             val contributors = CompletionContributor.forParameters(params)
 
-            sortedLookupElements = performCompletion(params, contributors, sorter, matcher, ctx.cancelToken)
-                .sortedBy { it.lookupString }
-                .toMutableList()
+            lookupElements = performCompletion(params, contributors, sorter, matcher, ctx.cancelToken)
         }
 
-        val result = sortedLookupElements.mapIndexedNotNull { i, it ->
+        val result = lookupElements.mapIndexedNotNull { i, it ->
             val dec = CompletionDecorator.from(it, snippetSupport)
             dec?.completionItem?.apply {
                 this.sortText = i.toString()
                 this.data = CompletionResolveIndex(completionId, i)
             }
         }
-        completionCache.cacheCompletion(ctx.file, sortedLookupElements)
+        completionCache.cacheCompletion(ctx.file, lookupElements)
 
         return Either.forRight(CompletionList(false, result.toMutableList()))
     }

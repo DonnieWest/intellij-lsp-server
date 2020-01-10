@@ -13,12 +13,12 @@ import java.util.concurrent.atomic.AtomicLong
  */
 class PreviousCompletionCacheService {
     private val myCompletionId: AtomicLong = AtomicLong(0)
-    private var elements: List<LookupElement> = listOf()
+    private var elements: Array<LookupElement> = arrayOf()
     private var lastUri: DocumentUri = ""
 
     fun incrementId() = myCompletionId.incrementAndGet()
 
-    fun cacheCompletion(file: PsiFile, elts: List<LookupElement>) {
+    fun cacheCompletion(file: PsiFile, elts: Array<LookupElement>) {
         elements = elts
         lastUri = getURIForFile(file)
     }
